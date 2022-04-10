@@ -1,0 +1,14 @@
+{
+  "minify": true,
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true
+    },
+    "transform": {
+      "decoratorMetadata": true
+    },
+    "target": "es2015",
+    "baseUrl": "./"
+  }
+}

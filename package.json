@@ -1,0 +1,14 @@
+{
+  "name": "openci",
+  "version": "0.1.0",
+  "description": "An open-source ci/cd tool",
+  "main": "index.js",
+  "author": "Sokiraon",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "cli",
+    "core",
+    "web"
+  ]
+}

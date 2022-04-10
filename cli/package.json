@@ -1,0 +1,27 @@
+{
+  "name": "@openci/cli",
+  "version": "0.1.0",
+  "description": "CLI interface of openci",
+  "main": "index.js",
+  "author": "Sokiraon",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "openci": "build/index.js"
+  },
+  "scripts": {
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@openci/core": "./core",
+    "chalk": "^5.0.1",
+    "commander": "^9.1.0",
+    "figures": "^4.0.1",
+    "inquirer": "^8.2.2"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.1",
+    "typescript": "^4.6.3"
+  }
+}
