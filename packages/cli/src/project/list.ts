@@ -1,4 +1,4 @@
-import CoreModules from "@openci/core";
+import Project from "@openci/core/build/project";
 import Printer from "../printer.js";
 
 interface ListOptions {
@@ -6,7 +6,7 @@ interface ListOptions {
 }
 
 export default function list(options: ListOptions) {
-  const projects = CoreModules.Project.getAll();
+  const projects = Project.getAll();
   if (projects.length === 0) {
     Printer.warn("No configured project found");
   } else {

@@ -18,11 +18,9 @@
 
     // Emit
     "declaration": true,
-    "declarationMap": true,
     "outDir": "build",
     "preserveConstEnums": true,
     "removeComments": true,
-    "sourceMap": true,
 
     // Interop Constraints
     "allowSyntheticDefaultImports": true,

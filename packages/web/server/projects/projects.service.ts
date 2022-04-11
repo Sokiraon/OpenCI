@@ -1,17 +1,18 @@
+import Project from "@openci/core/build/project/index.js";
+import Job from "@openci/core/build/job/index.js";
 import { Injectable } from "@nestjs/common";
-import CoreModules from "@openci/core";
 import { getOkResponse } from "../utils.js";
 
 @Injectable()
 export class ProjectsService {
   getAll() {
-    return getOkResponse(CoreModules.Project.getAll());
+    return getOkResponse(Project.getAll());
   }
 
   getProjectDetail(id: number) {
     return getOkResponse({
-      project: CoreModules.Project.getById(id),
-      jobs: CoreModules.Job.getProjectJobs(id),
+      project: Project.getById(id),
+      jobs: Job.getProjectJobs(id),
     });
   }
 }

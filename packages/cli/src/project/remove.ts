@@ -1,4 +1,4 @@
-import CoreModules from "@openci/core";
+import Project from "@openci/core/build/project";
 import chalk from "chalk";
 import { promptConfirm } from "../helpers.js";
 import Printer from "../printer.js";
@@ -13,7 +13,7 @@ export default async function remove(
 ) {
   for (const projectName of projectNames) {
     const coloredName = chalk.blue(projectName);
-    const record = CoreModules.Project.getByName(projectName);
+    const record = Project.getByName(projectName);
     if (record === undefined) {
       Printer.error(`Unable to find project [${coloredName}]\n`);
     } else {
@@ -30,7 +30,7 @@ export default async function remove(
           continue;
         }
       }
-      CoreModules.Project.remove(record.id);
+      Project.remove(record.id);
       Printer.success(`Successfully removed project [${projectName}]\n`);
     }
   }

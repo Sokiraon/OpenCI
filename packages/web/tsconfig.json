@@ -17,12 +17,8 @@
     "resolveJsonModule": true,
 
     // Emit
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "build",
     "preserveConstEnums": true,
     "removeComments": true,
-    "sourceMap": true,
 
     // Interop Constraints
     "allowSyntheticDefaultImports": true,
@@ -31,6 +27,7 @@
     // Language and Environment
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "jsx": "react",
     "target": "ES6",
 
     // Projects
@@ -39,6 +36,5 @@
     // Completeness
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "../type.d.ts"],
-  "exclude": ["build/**/*"]
+  "include": ["server/**/*", "frontend/**/*", "types/**/*"]
 }

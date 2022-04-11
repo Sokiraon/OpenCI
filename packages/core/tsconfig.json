@@ -18,6 +18,7 @@
 
     // Emit
     "declaration": true,
+    "outDir": "build",
     "preserveConstEnums": true,
     "removeComments": true,
 
@@ -28,7 +29,6 @@
     // Language and Environment
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "jsx": "react",
     "target": "ES6",
 
     // Projects
@@ -37,5 +37,6 @@
     // Completeness
     "skipLibCheck": true
   },
-  "include": ["server/**/*", "frontend/**/*", "types/**/*"]
+  "include": ["src/**/*", "../type.d.ts"],
+  "exclude": ["build/**/*"]
 }

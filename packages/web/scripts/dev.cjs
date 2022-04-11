@@ -4,7 +4,7 @@ const { join } = require("path");
 const { exec } = require("child_process");
 
 exec(
-  "swc ./server -d build/server -w --config-file .swcrc",
+  "npx swc ./server -d build/server -w --config-file .swcrc",
   (error, stdout, stderr) => {
     if (error) {
       console.error(`${error}`);
