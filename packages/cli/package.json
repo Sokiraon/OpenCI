@@ -14,7 +14,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@openci/core": "./core",
+    "@openci/core": "^0.1.0",
     "chalk": "^5.0.1",
     "commander": "^9.1.0",
     "figures": "^4.0.1",

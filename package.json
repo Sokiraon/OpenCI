@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "npx lerna run dev --parallel"
+    "dev": "npx lerna run build --scope @openci/core && npx lerna run dev --parallel"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.57",

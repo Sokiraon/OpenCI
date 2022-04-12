@@ -2,6 +2,8 @@ const nodemon = require("nodemon");
 const { copyFileSync } = require("fs");
 const { join } = require("path");
 const { exec } = require("child_process");
+const kill = require("kill-port");
+const livereload = require("livereload");
 
 exec(
   "npx swc ./server -d build/server -w --config-file .swcrc",
@@ -31,18 +33,26 @@ nodemon
     );
   });
 
-const livereload = require("livereload");
-const lrServer = livereload.createServer();
+const lrPort = 35729;
 
-const dir = join(__dirname, "../build/frontend");
-lrServer.watch(dir);
+const startLivereload = () => {
+  const lrServer = livereload.createServer({
+    port: lrPort,
+    originalPath: "http://dashboard.openci.com",
+  });
 
-const connect = require("connect");
-const static = require("serve-static");
+  const dir = join(__dirname, "../build/frontend");
+  lrServer.watch(dir);
 
-const server = connect();
-server.use(static(dir));
-server.listen(12139);
+  const connect = require("connect");
+  const static = require("serve-static");
+
+  const server = connect();
+  server.use(static(dir));
+  server.listen(12139);
+};
+
+kill(lrPort, "tcp").finally(() => startLivereload());
 
 require("esbuild")
   .build({
