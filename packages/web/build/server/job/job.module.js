@@ -1,0 +1,1 @@
+import{Module}from"@nestjs/common";import{JobController}from"./job.controller.js";import{JobService}from"./job.service.js";var _class;var _dec=Module({controllers:[JobController],providers:[JobService]});export let JobModule=_class=_dec((_class=class JobModule{})||_class)||_class

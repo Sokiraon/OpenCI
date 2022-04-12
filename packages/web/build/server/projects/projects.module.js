@@ -1,0 +1,1 @@
+import{Module}from"@nestjs/common";import{ProjectsController}from"./projects.controller.js";import{ProjectsService}from"./projects.service.js";var _class;var _dec=Module({controllers:[ProjectsController],providers:[ProjectsService]});export let ProjectsModule=_class=_dec((_class=class ProjectsModule{})||_class)||_class
