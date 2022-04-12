@@ -12,6 +12,7 @@ declare namespace Project {
     function getAll(): Record[];
     function getById(id: number): Record | undefined;
     function getByName(name: string): Record | undefined;
+    function update(data: Record): void;
     function remove(id: number): void;
 }
 export default Project;

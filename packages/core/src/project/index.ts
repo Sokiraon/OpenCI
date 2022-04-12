@@ -1,6 +1,7 @@
 import createProject from "./create.js";
 import { getAllProjects, queryProjectById, queryProjectByName } from "./query.js";
 import removeProject from "./remove.js";
+import updateProject from "./update.js";
 
 namespace Project {
   export type Creation = {
@@ -26,6 +27,10 @@ namespace Project {
 
   export function getByName(name: string): Record | undefined {
     return queryProjectByName(name);
+  }
+
+  export function update(data: Record) {
+    return updateProject(data);
   }
 
   export function remove(id: number) {

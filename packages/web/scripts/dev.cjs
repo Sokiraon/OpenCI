@@ -4,6 +4,7 @@ const { join } = require("path");
 const { exec } = require("child_process");
 const kill = require("kill-port");
 const livereload = require("livereload");
+const open = require("open");
 
 exec(
   "npx swc ./server -d build/server -w --config-file .swcrc",
@@ -34,6 +35,7 @@ nodemon
   });
 
 const lrPort = 35729;
+const webPort = 12139;
 
 const startLivereload = () => {
   const lrServer = livereload.createServer({
@@ -49,7 +51,9 @@ const startLivereload = () => {
 
   const server = connect();
   server.use(static(dir));
-  server.listen(12139);
+  server.listen(webPort, "localhost", () => {
+    open(`http://localhost:${webPort}`);
+  });
 };
 
 kill(lrPort, "tcp").finally(() => startLivereload());

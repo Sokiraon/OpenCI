@@ -1,1 +1,1 @@
-export function getOkResponse(data){return{code:0,msg:"",data}}export function getErrorResponse(msg){return{code:-1,msg,data:{}}}export const defaultErrorResponse={code:-1,msg:"internal server error",data:{}}
+export function getOkResponse(data){return{code:0,msg:"",data}}export const defaultOkResponse=getOkResponse({});export function getErrorResponse(msg){return{code:-1,msg,data:{}}}export const defaultErrorResponse=getErrorResponse("internal server error")

@@ -1,6 +1,7 @@
 import createProject from "./create.js";
 import { getAllProjects, queryProjectById, queryProjectByName } from "./query.js";
 import removeProject from "./remove.js";
+import updateProject from "./update.js";
 var Project;
 (function (Project) {
     function create(data) {
@@ -19,6 +20,10 @@ var Project;
         return queryProjectByName(name);
     }
     Project.getByName = getByName;
+    function update(data) {
+        return updateProject(data);
+    }
+    Project.update = update;
     function remove(id) {
         return removeProject(id);
     }

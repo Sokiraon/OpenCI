@@ -6,6 +6,7 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { ProjectsModule } from "./projects/projects.module.js";
 import { JobModule } from "./job/job.module.js";
+import { ProjectModule } from "./project/project.module.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,6 +17,7 @@ const __dirname = dirname(__filename);
     //   rootPath: join(__dirname, "..", "frontend"),
     // }),
     ProjectsModule,
+    ProjectModule,
     JobModule
   ],
   controllers: [AppController],

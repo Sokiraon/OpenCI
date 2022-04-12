@@ -8,6 +8,8 @@ export function getOkResponse<Type extends Record<string, any>>(
   };
 }
 
+export const defaultOkResponse = getOkResponse({});
+
 export function getErrorResponse(msg: string): ErrorResponseData {
   return {
     code: -1,
@@ -16,8 +18,4 @@ export function getErrorResponse(msg: string): ErrorResponseData {
   };
 }
 
-export const defaultErrorResponse: ErrorResponseData = {
-  code: -1,
-  msg: "internal server error",
-  data: {},
-};
+export const defaultErrorResponse = getErrorResponse("internal server error");
