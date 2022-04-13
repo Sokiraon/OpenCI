@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#! /usr/bin/env node --experimental-specifier-resolution=node
 import { Command } from "commander";
 import projectCommand from "./project/index.js";
 const program = new Command();
