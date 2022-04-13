@@ -1,6 +1,7 @@
 #! /usr/bin/env node --experimental-specifier-resolution=node
 import { Command } from "commander";
 import projectCommand from "./project/index.js";
+import run from "./run.js";
 const program = new Command();
 program
     .command("run [projectName]")
@@ -9,6 +10,7 @@ program
     .option("-s, --stages [stages...]", "Choose specific stage(s) to run")
     .description("Run a CI task from current folder or a pre-configured project")
     .action((projectName, options) => {
+    run(projectName, options);
 });
 program.addCommand(projectCommand);
 program.version("0.1.0");

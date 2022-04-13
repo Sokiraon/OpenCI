@@ -1,6 +1,5 @@
 import { get, post } from "./index";
-import Project from "@openci/core/build/project";
-import Job from "@openci/core/build/job";
+import { Project, Job } from "@openci/core";
 
 export const getProjectList = () => {
   return get<Project.Record[]>("/projects");

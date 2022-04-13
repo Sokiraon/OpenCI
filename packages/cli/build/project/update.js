@@ -7,10 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import Project from "@openci/core/build/project/index.js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { exit } from "process";
+import { Project } from "@openci/core";
 import Printer from "../printer.js";
 const questions = [
     {

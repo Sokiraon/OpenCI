@@ -1,4 +1,4 @@
-import Project from "@openci/core/build/project/index.js";
+import { Project } from "@openci/core";
 import Printer from "../printer.js";
 export default function list(options) {
     const projects = Project.getAll();

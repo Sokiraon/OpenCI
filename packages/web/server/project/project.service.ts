@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import Project from "@openci/core/build/project/index.js";
+import { Project } from "@openci/core";
 import { defaultOkResponse, getErrorResponse, getOkResponse } from "../utils.js";
 
 @Injectable()

@@ -1,4 +1,4 @@
-import Job from "@openci/core/build/job/index.js";
+import { Job } from "@openci/core";
 import { Injectable } from "@nestjs/common";
 import { getErrorResponse, getOkResponse } from "../utils.js";
 

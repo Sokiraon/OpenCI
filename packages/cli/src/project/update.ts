@@ -1,7 +1,7 @@
-import Project from "@openci/core/build/project/index.js";
 import chalk from "chalk";
 import inquirer from "inquirer";
 import { exit } from "process";
+import { Project } from "@openci/core";
 import Printer from "../printer.js";
 
 const questions: inquirer.QuestionCollection<inquirer.Answers> = [

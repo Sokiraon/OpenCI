@@ -6,6 +6,7 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "main": "build/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"

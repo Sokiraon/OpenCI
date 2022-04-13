@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import Printer from "../printer.js";
 import inquirer from "inquirer";
-import Project from "@openci/core/build/project/index.js";
 import chalk from "chalk";
+import { Project } from "@openci/core";
 const questions = [
     {
         type: "input",

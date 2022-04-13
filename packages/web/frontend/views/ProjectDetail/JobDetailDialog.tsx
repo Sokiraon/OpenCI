@@ -25,8 +25,7 @@ import useMessage from "../../hooks/useMessage";
 import { getJobLog } from "../../requests/job";
 import { Prism } from "react-syntax-highlighter";
 import { nord } from "react-syntax-highlighter/dist/esm/styles/prism";
-import Project from "@openci/core/build/project";
-import Job from "@openci/core/build/job";
+import { Project, Job } from "@openci/core";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {

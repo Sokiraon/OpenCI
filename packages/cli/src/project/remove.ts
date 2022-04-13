@@ -1,5 +1,5 @@
-import Project from "@openci/core/build/project/index.js";
 import chalk from "chalk";
+import { Project } from "@openci/core";
 import { promptConfirm } from "../helpers.js";
 import Printer from "../printer.js";
 
