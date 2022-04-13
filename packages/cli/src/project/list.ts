@@ -1,4 +1,4 @@
-import Project from "@openci/core/build/project";
+import Project from "@openci/core/build/project/index.js";
 import Printer from "../printer.js";
 
 interface ListOptions {

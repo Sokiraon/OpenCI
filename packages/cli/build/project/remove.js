@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import Project from "@openci/core/build/project";
+import Project from "@openci/core/build/project/index.js";
 import chalk from "chalk";
 import { promptConfirm } from "../helpers.js";
 import Printer from "../printer.js";

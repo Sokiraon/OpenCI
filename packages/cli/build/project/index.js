@@ -2,9 +2,17 @@ import { Command } from "commander";
 import create from "./create.js";
 import list from "./list.js";
 import remove from "./remove.js";
+import update from "./update.js";
 const projectCommand = new Command("project")
     .description("Create, list, update or delete project configs")
     .alias("proj");
+projectCommand
+    .command("create")
+    .alias("new")
+    .description("Create a project for a remote source")
+    .action(() => {
+    create();
+});
 projectCommand
     .command("list")
     .alias("ls")
@@ -14,11 +22,11 @@ projectCommand
     list(options);
 });
 projectCommand
-    .command("create")
-    .alias("new")
-    .description("Create a project for a remote source")
-    .action(() => {
-    create();
+    .command("update <project>")
+    .alias("set")
+    .description("Update project configuration")
+    .action(project => {
+    update(project);
 });
 projectCommand
     .command("remove <projects...>")
