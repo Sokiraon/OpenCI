@@ -7,37 +7,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import reporter from "./reporter.js";
-import { join } from "path";
-import { prepareWorkspace } from "./initialization.js";
 import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
-import { exit } from "process";
-import chalk from "chalk";
+import Project from "../project/index.js";
 import ExprRunner from "./expr-runner.js";
-export default function startLocalProject(path, out, err, options) {
+import { prepareWorkspace } from "./initialization.js";
+import reporter from "./reporter.js";
+import chalk from "chalk";
+import Job from "../job/index.js";
+export default function startRemoteProject(projectId, out, err, options) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        reporter.init(path, out, err);
-        yield prepareWorkspace(path, options === null || options === void 0 ? void 0 : options.branch);
-        const filePath = join(path, (_a = options === null || options === void 0 ? void 0 : options.input) !== null && _a !== void 0 ? _a : DEFAULT_CIFILE);
+        const project = Project.getById(projectId);
+        if (!project) {
+            err.write("Failed to find specified project");
+            process.exit(1);
+        }
+        reporter.init(project, out, err);
+        yield prepareWorkspace(project, options === null || options === void 0 ? void 0 : options.branch);
         let parseResult;
         try {
-            parseResult = parseCIFile(filePath);
+            parseResult = parseCIFile((_a = options === null || options === void 0 ? void 0 : options.input) !== null && _a !== void 0 ? _a : DEFAULT_CIFILE);
         }
         catch (error) {
             if (error instanceof Error) {
                 reporter.error(error.message);
             }
-            exit(1);
+            process.exit(1);
         }
         const stagesToRun = [];
         if (options && Array.isArray(options === null || options === void 0 ? void 0 : options.stages)) {
-            for (const stage of options.stages) {
+            for (const stage of options === null || options === void 0 ? void 0 : options.stages) {
                 const targetStage = parseResult.stages.find(element => element.name === stage);
                 if (!targetStage) {
                     reporter.error(`Error: cannot find specified stage [${chalk.blue(stage)}]`);
-                    exit(1);
+                    process.exit(1);
                 }
                 else {
                     stagesToRun.push(targetStage);
@@ -59,5 +63,6 @@ export default function startLocalProject(path, out, err, options) {
             reporter.success(`Finished running stage [${stage.name}]`);
         }
         reporter.success("Finished all the operations!");
+        reporter.updateJobStatus(Job.Status.FinishSuccess);
     });
 }

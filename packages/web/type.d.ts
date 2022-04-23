@@ -24,11 +24,11 @@ export interface ArrayCstNode extends CstNode {
 }
 
 export type ArrayCstChildren = {
-  SquareLeft?: IToken[];
-  number?: NumberCstNode[];
-  Comma?: IToken[];
-  SquareRight?: IToken[];
-  string?: StringCstNode[];
+  SquareLeft?: (IToken)[];
+  number?: (NumberCstNode)[];
+  Comma?: (IToken)[];
+  SquareRight?: (IToken)[];
+  string?: (StringCstNode)[];
 };
 
 export interface NodeStatCstNode extends CstNode {
@@ -121,7 +121,7 @@ export interface SelectBranchStatCstNode extends CstNode {
 export type SelectBranchStatCstChildren = {
   SelectBranch: IToken[];
   ParenLeft: IToken[];
-  string: StringCstNode[];
+  string: (StringCstNode)[];
   Comma?: IToken[];
   ParenRight: IToken[];
 };

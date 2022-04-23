@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
-import lexer from "./lexer";
-import parser from "./parser";
-import visitor from "./visitor";
+import lexer from "./lexer.js";
+import parser from "./parser.js";
+import visitor from "./visitor.js";
 import { StagesCstChildren } from "./type";
 
 export default function parseCIFile(filePath: string) {

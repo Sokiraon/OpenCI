@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import startLocalProject from "./start-local.js";
+import startRemoteProject from "./start-remote.js";
 var Run;
 (function (Run) {
     function startLocal(path, out, err = out, options) {
@@ -16,7 +17,11 @@ var Run;
         });
     }
     Run.startLocal = startLocal;
-    function startProject(options) { }
-    Run.startProject = startProject;
+    function startRemote(projectId, out, err = out, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield startRemoteProject(projectId, out, err, options);
+        });
+    }
+    Run.startRemote = startRemote;
 })(Run || (Run = {}));
 export default Run;

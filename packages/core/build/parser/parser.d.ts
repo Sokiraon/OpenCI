@@ -11,10 +11,11 @@ declare class Parser extends CstParser {
     private rawListStat;
     private checkboxStat;
     private selectBranchStat;
-    private noneVoidStat;
+    private nonBlockStat;
+    private userInputStat;
+    private nonVoidStat;
     private expression;
     private defStat;
-    private statement;
     private envStage;
     private commonStage;
     private stages;

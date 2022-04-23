@@ -1,0 +1,12 @@
+stages {
+  env {
+    NODE_VERSION = sh "node -v"
+  }
+  build {
+    env {
+      BUILD_TIME = node "Date.now()"
+    }
+    echo "Build Started: $BUILD_TIME"
+    sh "yarn install"
+  }
+}

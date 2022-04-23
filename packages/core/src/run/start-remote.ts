@@ -1,41 +1,45 @@
-import Run from ".";
 import stream from "stream";
-import reporter from "./reporter.js";
-import { join } from "path";
-import { prepareWorkspace } from "./initialization.js";
+import Run from ".";
 import { DEFAULT_CIFILE } from "../constants.js";
-import { VisitCommonStageResult, VisitStagesResult } from "../parser/visitor.js";
 import parseCIFile from "../parser/index.js";
-import { exit } from "process";
-import chalk from "chalk";
+import { VisitCommonStageResult, VisitStagesResult } from "../parser/visitor.js";
+import Project from "../project/index.js";
 import ExprRunner from "./expr-runner.js";
+import { prepareWorkspace } from "./initialization.js";
+import reporter from "./reporter.js";
+import chalk from "chalk";
+import Job from "../job/index.js";
 
-export default async function startLocalProject(
-  path: string,
+export default async function startRemoteProject(
+  projectId: number,
   out: stream.Writable,
   err: stream.Writable,
   options?: Run.Options
 ) {
-  reporter.init(path, out, err);
-  await prepareWorkspace(path, options?.branch);
-  const filePath = join(path, options?.input ?? DEFAULT_CIFILE);
+  const project = Project.getById(projectId);
+  if (!project) {
+    err.write("Failed to find specified project");
+    process.exit(1);
+  }
+  reporter.init(project, out, err);
+  await prepareWorkspace(project, options?.branch);
   let parseResult: VisitStagesResult;
   try {
-    parseResult = parseCIFile(filePath);
+    parseResult = parseCIFile(options?.input ?? DEFAULT_CIFILE);
   } catch (error) {
     if (error instanceof Error) {
       reporter.error(error.message);
     }
-    exit(1);
+    process.exit(1);
   }
 
   const stagesToRun: VisitCommonStageResult[] = [];
   if (options && Array.isArray(options?.stages)) {
-    for (const stage of options.stages) {
+    for (const stage of options?.stages) {
       const targetStage = parseResult.stages.find(element => element.name === stage);
       if (!targetStage) {
         reporter.error(`Error: cannot find specified stage [${chalk.blue(stage)}]`);
-        exit(1);
+        process.exit(1);
       } else {
         stagesToRun.push(targetStage);
       }
@@ -56,4 +60,5 @@ export default async function startLocalProject(
     reporter.success(`Finished running stage [${stage.name}]`);
   }
   reporter.success("Finished all the operations!");
+  reporter.updateJobStatus(Job.Status.FinishSuccess);
 }

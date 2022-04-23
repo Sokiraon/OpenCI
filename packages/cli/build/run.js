@@ -7,10 +7,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Run } from "@openci/core";
+import { Project, Run } from "@openci/core";
+import chalk from "chalk";
+import Printer from "./printer";
 export default function run(projectName, options) {
     return __awaiter(this, void 0, void 0, function* () {
         if (projectName) {
+            const project = Project.getByName(projectName);
+            if (project) {
+                yield Run.startRemote(project.id, process.stdout, process.stderr, options);
+            }
+            else {
+                Printer.error(`Failed to find specified project [${chalk.blue(projectName)}]`);
+                process.exit(1);
+            }
         }
         else {
             yield Run.startLocal(process.cwd(), process.stdout, process.stderr, options);

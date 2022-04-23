@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
-import reporter from "./run/reporter";
+import reporter from "./run/reporter.js";
 import child_process from "child_process";
 export function getDateStr() {
     return new Date().toISOString();
@@ -29,21 +29,23 @@ export function execSysCommand(command) {
     return __awaiter(this, void 0, void 0, function* () {
         reporter.sysCommand(command);
         const process = child_process.spawn(command, { shell: true });
+        let output = "";
         process.stdout.setEncoding("utf-8");
         process.stdout.on("data", (data) => {
+            output += data.trim();
             reporter.common(data);
         });
         process.stderr.setEncoding("utf-8");
         process.stderr.on("data", (data) => {
-            reporter.error(data);
+            reporter.common(data);
         });
         return new Promise((resolve, reject) => {
             process.on("close", code => {
                 if (code || code === null) {
-                    reject(code !== null && code !== void 0 ? code : -1);
+                    reject(code);
                 }
                 else {
-                    resolve(code);
+                    resolve(output);
                 }
             });
         });

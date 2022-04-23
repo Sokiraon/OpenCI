@@ -114,11 +114,16 @@ class Parser extends CstParser {
     this.CONSUME(ParenRight);
   });
 
-  private noneVoidStat = this.RULE("noneVoidStat", () => {
+  private nonBlockStat = this.RULE("nonBlockStat", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.nodeStat) },
       { ALT: () => this.SUBRULE(this.echoStat) },
       { ALT: () => this.SUBRULE(this.shellStat) },
+    ]);
+  });
+
+  private userInputStat = this.RULE("userInputStat", () => {
+    this.OR([
       { ALT: () => this.SUBRULE(this.inputStat) },
       { ALT: () => this.SUBRULE(this.confirmStat) },
       { ALT: () => this.SUBRULE(this.rawListStat) },
@@ -127,10 +132,17 @@ class Parser extends CstParser {
     ]);
   });
 
+  private nonVoidStat = this.RULE("nonVoidStat", () => {
+    this.OR([
+      { ALT: () => this.SUBRULE(this.nonBlockStat) },
+      { ALT: () => this.SUBRULE(this.userInputStat) },
+    ]);
+  });
+
   private expression = this.RULE("expression", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.string) },
-      { ALT: () => this.SUBRULE(this.noneVoidStat) },
+      { ALT: () => this.SUBRULE(this.nonVoidStat) },
     ]);
   });
 
@@ -138,13 +150,6 @@ class Parser extends CstParser {
     this.CONSUME(Identifier);
     this.CONSUME(Equal);
     this.SUBRULE(this.expression);
-  });
-
-  private statement = this.RULE("statement", () => {
-    this.OR([
-      { ALT: () => this.SUBRULE(this.defStat) },
-      { ALT: () => this.SUBRULE(this.noneVoidStat) },
-    ]);
   });
 
   private envStage = this.RULE("envStage", () => {
@@ -163,7 +168,7 @@ class Parser extends CstParser {
       this.SUBRULE(this.envStage);
     });
     this.MANY(() => {
-      this.SUBRULE(this.statement);
+      this.SUBRULE(this.nonBlockStat);
     });
     this.CONSUME(CurlyRight);
   });
@@ -182,7 +187,6 @@ class Parser extends CstParser {
 
   constructor() {
     super(tokens);
-
     this.performSelfAnalysis();
   }
 

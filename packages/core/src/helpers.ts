@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
-import reporter from "./run/reporter";
+import reporter from "./run/reporter.js";
 import child_process from "child_process";
 
 export function getDateStr() {
@@ -18,26 +18,29 @@ export function createFile(filePath: string) {
   }
 }
 
-export async function execSysCommand(command: string): Promise<number> {
+export async function execSysCommand(command: string): Promise<string> {
   reporter.sysCommand(command);
   const process = child_process.spawn(command, { shell: true });
 
+  let output = "";
+
   process.stdout.setEncoding("utf-8");
   process.stdout.on("data", (data: string) => {
+    output += data.trim();
     reporter.common(data);
   });
 
   process.stderr.setEncoding("utf-8");
   process.stderr.on("data", (data: string) => {
-    reporter.error(data);
+    reporter.common(data);
   });
 
   return new Promise((resolve, reject) => {
     process.on("close", code => {
       if (code || code === null) {
-        reject(code ?? -1);
+        reject(code);
       } else {
-        resolve(code);
+        resolve(output);
       }
     });
   });

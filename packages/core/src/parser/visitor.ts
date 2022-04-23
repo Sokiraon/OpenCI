@@ -11,14 +11,15 @@ import {
   ICstNodeVisitor,
   InputStatCstChildren,
   NodeStatCstChildren,
-  NoneVoidStatCstChildren,
+  NonBlockStatCstChildren,
+  NonVoidStatCstChildren,
   NumberCstChildren,
   RawListStatCstChildren,
   SelectBranchStatCstChildren,
   ShellStatCstChildren,
   StagesCstChildren,
-  StatementCstChildren,
   StringCstChildren,
+  UserInputStatCstChildren,
 } from "./type.js";
 
 class Visitor
@@ -57,18 +58,30 @@ class Visitor
     };
   }
 
-  echoStat(children: EchoStatCstChildren) {
+  echoStat(children: EchoStatCstChildren): { type: "echo"; expression: string } {
     return {
       type: "echo",
       expression: this.string(children.string[0].children),
     };
   }
 
-  shellStat(children: ShellStatCstChildren) {
+  shellStat(children: ShellStatCstChildren): { type: "shell"; expression: string } {
     return {
       type: "shell",
       expression: this.string(children.string[0].children),
     };
+  }
+
+  nonBlockStat(children: NonBlockStatCstChildren): VisitNonBlockStatResult {
+    if (children.echoStat) {
+      return this.echoStat(children.echoStat[0].children);
+    } else if (children.nodeStat) {
+      return this.nodeStat(children.nodeStat[0].children);
+    } else if (children.shellStat) {
+      return this.shellStat(children.shellStat[0].children);
+    } else {
+      return { type: "shell", expression: "" };
+    }
   }
 
   inputStat(children: InputStatCstChildren) {
@@ -109,14 +122,8 @@ class Visitor
     };
   }
 
-  noneVoidStat(children: NoneVoidStatCstChildren) {
-    if (children.nodeStat) {
-      return this.nodeStat(children.nodeStat[0].children);
-    } else if (children.echoStat) {
-      return this.echoStat(children.echoStat[0].children);
-    } else if (children.shellStat) {
-      return this.shellStat(children.shellStat[0].children);
-    } else if (children.inputStat) {
+  userInputStat(children: UserInputStatCstChildren) {
+    if (children.inputStat) {
       return this.inputStat(children.inputStat[0].children);
     } else if (children.confirmStat) {
       return this.confirmStat(children.confirmStat[0].children);
@@ -127,17 +134,23 @@ class Visitor
     } else if (children.selectBranchStat) {
       return this.selectBranchStat(children.selectBranchStat[0].children);
     } else {
-      return { type: "shell", expression: "" };
+      return { type: "input", expression: "" };
+    }
+  }
+
+  nonVoidStat(children: NonVoidStatCstChildren) {
+    if (children.nonBlockStat) {
+      return this.nonBlockStat(children.nonBlockStat[0].children);
+    } else {
+      return this.userInputStat(children.userInputStat![0].children);
     }
   }
 
   expression(children: ExpressionCstChildren) {
     if (children.string) {
       return this.string(children.string[0].children);
-    } else if (children.noneVoidStat) {
-      return this.noneVoidStat(children.noneVoidStat[0].children);
     } else {
-      return "";
+      return this.nonVoidStat(children.nonVoidStat![0].children);
     }
   }
 
@@ -146,16 +159,6 @@ class Visitor
       name: children.Identifier[0].image,
       value: this.expression(children.expression[0].children),
     };
-  }
-
-  statement(children: StatementCstChildren) {
-    if (children.defStat) {
-      return this.defStat(children.defStat[0].children);
-    } else if (children.noneVoidStat) {
-      return this.noneVoidStat(children.noneVoidStat[0].children);
-    } else {
-      return { type: "shell", expression: "" };
-    }
   }
 
   envStage(children: EnvStageCstChildren) {
@@ -171,8 +174,10 @@ class Visitor
       name: children.StageName[0].image,
       steps: [],
     };
-    if (Array.isArray(children.statement)) {
-      res.steps = children.statement.map(item => this.statement(item.children));
+    if (Array.isArray(children.nonBlockStat)) {
+      res.steps = children.nonBlockStat.map(item =>
+        this.nonBlockStat(item.children)
+      );
     }
     if (children.envStage) {
       res.env = this.envStage(children.envStage[0].children);
@@ -194,14 +199,21 @@ class Visitor
   }
 }
 
-interface VisitCommonStageResult {
+export type EnvDefs = ReturnType<typeof visitor.envStage>;
+
+export interface VisitNonBlockStatResult {
+  type: "echo" | "node" | "shell";
+  expression: string;
+}
+
+export interface VisitCommonStageResult {
   name: string;
-  steps: ReturnType<typeof visitor.statement>[];
-  env?: ReturnType<typeof visitor.envStage>;
+  steps: ReturnType<typeof visitor.nonBlockStat>[];
+  env?: EnvDefs;
 }
 
 export interface VisitStagesResult {
-  env?: ReturnType<typeof visitor.envStage>;
+  env?: EnvDefs;
   stages: Array<VisitCommonStageResult>;
 }
 

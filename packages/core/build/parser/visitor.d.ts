@@ -1,22 +1,23 @@
-import { ArrayCstChildren, CheckboxStatCstChildren, CommonStageCstChildren, ConfirmStatCstChildren, DefStatCstChildren, EchoStatCstChildren, EnvStageCstChildren, ExpressionCstChildren, ICstNodeVisitor, InputStatCstChildren, NodeStatCstChildren, NoneVoidStatCstChildren, NumberCstChildren, RawListStatCstChildren, SelectBranchStatCstChildren, ShellStatCstChildren, StagesCstChildren, StatementCstChildren, StringCstChildren } from "./type.js";
+import { ArrayCstChildren, CheckboxStatCstChildren, CommonStageCstChildren, ConfirmStatCstChildren, DefStatCstChildren, EchoStatCstChildren, EnvStageCstChildren, ExpressionCstChildren, ICstNodeVisitor, InputStatCstChildren, NodeStatCstChildren, NonBlockStatCstChildren, NonVoidStatCstChildren, NumberCstChildren, RawListStatCstChildren, SelectBranchStatCstChildren, ShellStatCstChildren, StagesCstChildren, StringCstChildren, UserInputStatCstChildren } from "./type.js";
 declare const Visitor_base: new (...args: any[]) => import("chevrotain").ICstVisitor<any, any>;
 declare class Visitor extends Visitor_base implements ICstNodeVisitor<any, any> {
     constructor();
     string(children: StringCstChildren): string;
     number(children: NumberCstChildren): number;
-    array(children: ArrayCstChildren): string[] | number[];
+    array(children: ArrayCstChildren): number[] | string[];
     nodeStat(children: NodeStatCstChildren): {
         type: "node";
         expression: string;
     };
     echoStat(children: EchoStatCstChildren): {
-        type: string;
+        type: "echo";
         expression: string;
     };
     shellStat(children: ShellStatCstChildren): {
-        type: string;
+        type: "shell";
         expression: string;
     };
+    nonBlockStat(children: NonBlockStatCstChildren): VisitNonBlockStatResult;
     inputStat(children: InputStatCstChildren): {
         type: string;
         message: string;
@@ -28,78 +29,74 @@ declare class Visitor extends Visitor_base implements ICstNodeVisitor<any, any> 
     rawListStat(children: RawListStatCstChildren): {
         type: string;
         message: string;
-        choices: string[] | number[];
+        choices: number[] | string[];
     };
     checkboxStat(children: CheckboxStatCstChildren): {
         type: string;
         message: string;
-        choices: string[] | number[];
+        choices: number[] | string[];
     };
     selectBranchStat(children: SelectBranchStatCstChildren): {
         type: string;
         message: string;
         remote: string;
     };
-    noneVoidStat(children: NoneVoidStatCstChildren): {
-        type: string;
-        expression: string;
-    } | {
+    userInputStat(children: UserInputStatCstChildren): {
         type: string;
         message: string;
+    } | {
+        type: string;
+        expression: string;
+    };
+    nonVoidStat(children: NonVoidStatCstChildren): {
+        type: string;
+        message: string;
+    } | {
+        type: string;
+        expression: string;
     };
     expression(children: ExpressionCstChildren): string | {
         type: string;
-        expression: string;
+        message: string;
     } | {
         type: string;
-        message: string;
+        expression: string;
     };
     defStat(children: DefStatCstChildren): {
         name: string;
         value: string | {
             type: string;
-            expression: string;
+            message: string;
         } | {
             type: string;
-            message: string;
-        };
-    };
-    statement(children: StatementCstChildren): {
-        type: string;
-        expression: string;
-    } | {
-        type: string;
-        message: string;
-    } | {
-        name: string;
-        value: string | {
-            type: string;
             expression: string;
-        } | {
-            type: string;
-            message: string;
         };
     };
     envStage(children: EnvStageCstChildren): {
         name: string;
         value: string | {
             type: string;
-            expression: string;
+            message: string;
         } | {
             type: string;
-            message: string;
+            expression: string;
         };
     }[];
     commonStage(children: CommonStageCstChildren): VisitCommonStageResult;
     stages(children: StagesCstChildren): VisitStagesResult;
 }
-interface VisitCommonStageResult {
+export declare type EnvDefs = ReturnType<typeof visitor.envStage>;
+export interface VisitNonBlockStatResult {
+    type: "echo" | "node" | "shell";
+    expression: string;
+}
+export interface VisitCommonStageResult {
     name: string;
-    steps: ReturnType<typeof visitor.statement>[];
-    env?: ReturnType<typeof visitor.envStage>;
+    steps: ReturnType<typeof visitor.nonBlockStat>[];
+    env?: EnvDefs;
 }
 export interface VisitStagesResult {
-    env?: ReturnType<typeof visitor.envStage>;
+    env?: EnvDefs;
     stages: Array<VisitCommonStageResult>;
 }
 declare const visitor: Visitor;

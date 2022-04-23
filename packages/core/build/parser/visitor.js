@@ -37,6 +37,20 @@ class Visitor extends parser.getBaseCstVisitorConstructor() {
             expression: this.string(children.string[0].children),
         };
     }
+    nonBlockStat(children) {
+        if (children.echoStat) {
+            return this.echoStat(children.echoStat[0].children);
+        }
+        else if (children.nodeStat) {
+            return this.nodeStat(children.nodeStat[0].children);
+        }
+        else if (children.shellStat) {
+            return this.shellStat(children.shellStat[0].children);
+        }
+        else {
+            return { type: "shell", expression: "" };
+        }
+    }
     inputStat(children) {
         return {
             type: "input",
@@ -70,17 +84,8 @@ class Visitor extends parser.getBaseCstVisitorConstructor() {
             remote: this.string(children.string[1].children),
         };
     }
-    noneVoidStat(children) {
-        if (children.nodeStat) {
-            return this.nodeStat(children.nodeStat[0].children);
-        }
-        else if (children.echoStat) {
-            return this.echoStat(children.echoStat[0].children);
-        }
-        else if (children.shellStat) {
-            return this.shellStat(children.shellStat[0].children);
-        }
-        else if (children.inputStat) {
+    userInputStat(children) {
+        if (children.inputStat) {
             return this.inputStat(children.inputStat[0].children);
         }
         else if (children.confirmStat) {
@@ -96,18 +101,23 @@ class Visitor extends parser.getBaseCstVisitorConstructor() {
             return this.selectBranchStat(children.selectBranchStat[0].children);
         }
         else {
-            return { type: "shell", expression: "" };
+            return { type: "input", expression: "" };
+        }
+    }
+    nonVoidStat(children) {
+        if (children.nonBlockStat) {
+            return this.nonBlockStat(children.nonBlockStat[0].children);
+        }
+        else {
+            return this.userInputStat(children.userInputStat[0].children);
         }
     }
     expression(children) {
         if (children.string) {
             return this.string(children.string[0].children);
         }
-        else if (children.noneVoidStat) {
-            return this.noneVoidStat(children.noneVoidStat[0].children);
-        }
         else {
-            return "";
+            return this.nonVoidStat(children.nonVoidStat[0].children);
         }
     }
     defStat(children) {
@@ -115,17 +125,6 @@ class Visitor extends parser.getBaseCstVisitorConstructor() {
             name: children.Identifier[0].image,
             value: this.expression(children.expression[0].children),
         };
-    }
-    statement(children) {
-        if (children.defStat) {
-            return this.defStat(children.defStat[0].children);
-        }
-        else if (children.noneVoidStat) {
-            return this.noneVoidStat(children.noneVoidStat[0].children);
-        }
-        else {
-            return { type: "shell", expression: "" };
-        }
     }
     envStage(children) {
         let statements = [];
@@ -139,8 +138,8 @@ class Visitor extends parser.getBaseCstVisitorConstructor() {
             name: children.StageName[0].image,
             steps: [],
         };
-        if (Array.isArray(children.statement)) {
-            res.steps = children.statement.map(item => this.statement(item.children));
+        if (Array.isArray(children.nonBlockStat)) {
+            res.steps = children.nonBlockStat.map(item => this.nonBlockStat(item.children));
         }
         if (children.envStage) {
             res.env = this.envStage(children.envStage[0].children);
