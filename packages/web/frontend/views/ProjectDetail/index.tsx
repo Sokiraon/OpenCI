@@ -14,13 +14,11 @@ import {
   CircularProgress,
   IconButton,
   Paper,
-  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { ColDef, ICellRendererParams } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { TextField as FormikTextField } from "formik-mui";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import JobDetailDialog from "./JobDetailDialog";
@@ -48,11 +46,6 @@ const ProjectInfoItem = (props: { label: string; content?: string }) => (
     <TextSkeleton variant="body1" minWidth={128} content={props.content} />
   </Box>
 );
-
-const TextField = styled(FormikTextField)({
-  width: 400,
-  marginTop: 4,
-});
 
 const StatusCell = (props: BoxProps & { tip: string }) => (
   <Tooltip title={props.tip} placement="right">
@@ -259,12 +252,15 @@ export default function ProjectDetail() {
         setOpen={setOpenDelete}
         onConfirm={handleDeleteProject}
       />
-      <JobDetailDialog
-        open={openJobDetail}
-        setOpen={setOpenJobDetail}
-        project={projectDetail?.project}
-        job={jobToView}
-      />
+      {jobToView && (
+        <JobDetailDialog
+          open={openJobDetail}
+          setOpen={setOpenJobDetail}
+          project={projectDetail?.project}
+          job={jobToView}
+          onFinish={() => forceUpdate()}
+        />
+      )}
     </>
   );
 }

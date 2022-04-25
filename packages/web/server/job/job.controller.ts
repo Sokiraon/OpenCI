@@ -8,9 +8,9 @@ export class JobController {
     // do nothing
   }
 
-  @Get("/:id/log")
-  getJobLog(@Param("id") id: number) {
-    return this.jobService.getJobLog(id);
+  @Get("/:id/detail")
+  getJobDetail(@Param("id") id: number) {
+    return this.jobService.getJobDetail(id);
   }
 
   @Post("/start")

@@ -24,7 +24,7 @@ namespace Job {
     status: Status;
     statusText: string;
     logFilePath?: string;
-  };
+  }
 
   export function create(projectId: number) {
     return createJob(projectId);
@@ -38,12 +38,16 @@ namespace Job {
     return setJobLogPath(id, path);
   }
 
+  export function getById(jobId: number): Record | undefined {
+    return QueryJob.getById(jobId);
+  }
+
   export function getProjectJobs(projectId: number): Record[] {
     return QueryJob.getProjectJobs(projectId);
   }
 
-  export function getJobLog(id: number) {
-    return QueryJob.getJobLog(id);
+  export function getJobDetail(id: number) {
+    return QueryJob.getJobDetail(id);
   }
 }
 

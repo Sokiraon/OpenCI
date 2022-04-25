@@ -15,7 +15,6 @@ var Job;
         "Finished Successful",
         "Finished With Error",
     ];
-    ;
     function create(projectId) {
         return createJob(projectId);
     }
@@ -28,13 +27,17 @@ var Job;
         return setJobLogPath(id, path);
     }
     Job.setLogPath = setLogPath;
+    function getById(jobId) {
+        return QueryJob.getById(jobId);
+    }
+    Job.getById = getById;
     function getProjectJobs(projectId) {
         return QueryJob.getProjectJobs(projectId);
     }
     Job.getProjectJobs = getProjectJobs;
-    function getJobLog(id) {
-        return QueryJob.getJobLog(id);
+    function getJobDetail(id) {
+        return QueryJob.getJobDetail(id);
     }
-    Job.getJobLog = getJobLog;
+    Job.getJobDetail = getJobDetail;
 })(Job || (Job = {}));
 export default Job;

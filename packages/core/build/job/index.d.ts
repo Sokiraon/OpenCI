@@ -18,10 +18,15 @@ declare namespace Job {
     function create(projectId: number): number;
     function updateStatus(id: number, status: Status): void;
     function setLogPath(id: number, path: string): void;
+    function getById(jobId: number): Record | undefined;
     function getProjectJobs(projectId: number): Record[];
-    function getJobLog(id: number): {
-        fileName: string;
-        content: string;
+    function getJobDetail(id: number): {
+        info: Record;
+        log: {
+            fileName: string;
+            content: string;
+            running: boolean;
+        };
     } | undefined;
 }
 export default Job;

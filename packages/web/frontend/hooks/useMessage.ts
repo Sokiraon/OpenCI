@@ -1,28 +1,36 @@
 import { useSnackbar } from "notistack";
+import { useCallback } from "react";
 
 export default function useMessage() {
   const { enqueueSnackbar } = useSnackbar();
 
-  return {
-    showSuccess: (message: string) => {
+  const showSuccess = useCallback(
+    (message: string) => {
       enqueueSnackbar(message, {
         anchorOrigin: {
           vertical: "top",
           horizontal: "center",
         },
-        autoHideDuration: 2500,
+        autoHideDuration: 1500,
         variant: "success",
       });
     },
-    showError: (message: string) => {
+    [enqueueSnackbar]
+  );
+
+  const showError = useCallback(
+    (message: string) => {
       enqueueSnackbar(message, {
         anchorOrigin: {
           vertical: "top",
           horizontal: "center",
         },
-        autoHideDuration: 2500,
+        autoHideDuration: 1500,
         variant: "error",
       });
     },
-  };
+    [enqueueSnackbar]
+  );
+
+  return { showSuccess, showError };
 }

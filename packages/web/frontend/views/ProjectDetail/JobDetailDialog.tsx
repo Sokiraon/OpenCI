@@ -22,10 +22,10 @@ import { blue, grey, lightGreen, red } from "@mui/material/colors";
 import { TransitionProps } from "@mui/material/transitions";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import useMessage from "../../hooks/useMessage";
-import { getJobLog } from "../../requests/job";
 import { Prism } from "react-syntax-highlighter";
 import { nord } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Project, Job } from "@openci/core";
+import { getJobDetail, JobDetail } from "../../requests/job";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -40,28 +40,56 @@ interface JobDetailDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   project: Project.Record | undefined;
-  job: Job.Record | undefined;
+  job: Job.Record;
+  onFinish: () => void;
 }
 
 export default function JobDetailDialog(props: JobDetailDialogProps) {
-  const { open, setOpen, project, job } = props;
+  const { open, setOpen, project, job, onFinish } = props;
   const { showError } = useMessage();
 
-  const [jobLog, setJobLog] = useState<JobLog>();
+  const [jobDetail, setJobDetail] = useState<JobDetail>();
+  const jobInfo = useMemo(() => jobDetail?.info ?? job, [job, jobDetail?.info]);
+
+  const handleCloseDialog = useCallback(() => {
+    setOpen(false);
+    setJobDetail(undefined);
+    onFinish();
+  }, [onFinish, setOpen]);
+
+  const fetchJobData = useCallback<() => Promise<JobDetail>>(
+    () =>
+      new Promise(resolve => {
+        getJobDetail(jobInfo.id)
+          .then(res => resolve(res.data))
+          .catch(error => {
+            showError(error.msg);
+            setJobDetail(undefined);
+          });
+      }),
+    [jobInfo.id, showError]
+  );
 
   useEffect(() => {
     if (open) {
-      getJobLog(job?.id ?? 0)
-        .then(res => setJobLog(res.data))
-        .catch(error => {
-          showError(error.msg);
-          setJobLog(undefined);
-        });
+      fetchJobData().then(data => {
+        if (data.log.running) {
+          const intervalId = setInterval(() => {
+            fetchJobData().then(data => {
+              if (!data.log.running) {
+                clearInterval(intervalId);
+              }
+              setJobDetail(data);
+            });
+          }, 1000);
+        }
+        setJobDetail(data);
+      });
     }
-  }, [job?.id, open, showError]);
+  }, [jobInfo.id, open, fetchJobData]);
 
   const appBarColor = useMemo<MaterialColor>(() => {
-    switch (job?.status) {
+    switch (jobInfo.status) {
       case 1:
         return grey;
       case 2:
@@ -71,10 +99,10 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
       default:
         return blue;
     }
-  }, [job?.status]);
+  }, [jobInfo.status]);
 
   const statusIcon = useMemo<React.ReactNode>(() => {
-    switch (job?.status) {
+    switch (jobInfo.status) {
       case 1:
         return <DoDisturbOn />;
       case 2:
@@ -91,28 +119,30 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
           />
         );
     }
-  }, [job?.status]);
+  }, [jobInfo.status]);
 
-  const createdDate = useMemo(() => new Date(job?.createdAt ?? 0), [job?.createdAt]);
+  const createdDate = useMemo(() => new Date(jobInfo.createdAt ?? 0), [jobInfo]);
   const timeDelta = useMemo(
-    () => (new Date(job?.updatedAt ?? 0).getTime() - createdDate.getTime()) / 1000,
-    [createdDate, job?.updatedAt]
+    () => (new Date(jobInfo.updatedAt).getTime() - createdDate.getTime()) / 1000,
+    [createdDate, jobInfo]
   );
 
   const handleDownload = useCallback(() => {
-    try {
-      const url = URL.createObjectURL(new Blob([jobLog?.content ?? ""]));
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = jobLog?.fileName ?? "";
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      showError("Failed to download file");
+    if (jobDetail) {
+      try {
+        const url = URL.createObjectURL(new Blob([jobDetail.log.content]));
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = jobDetail.log.fileName;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch {
+        showError("Failed to download file");
+      }
     }
-  }, [jobLog, showError]);
+  }, [jobDetail, showError]);
 
   return (
     <Dialog fullScreen open={open} TransitionComponent={Transition}>
@@ -124,9 +154,9 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
             {statusIcon}
           </Box>
           <Typography variant="h6" sx={{ flex: 1, ml: 1.5 }}>
-            {project?.name} - {job?.id}
+            {project?.name} - {jobInfo.id}
           </Typography>
-          <IconButton color="inherit" onClick={() => setOpen(false)}>
+          <IconButton color="inherit" onClick={handleCloseDialog}>
             <Close />
           </IconButton>
         </Toolbar>
@@ -181,7 +211,7 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Log
           </Typography>
-          {jobLog && (
+          {jobDetail && (
             <Tooltip title="Download Log File">
               <IconButton onClick={handleDownload}>
                 <Download />
@@ -189,9 +219,9 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
             </Tooltip>
           )}
         </Box>
-        {jobLog && (
+        {jobDetail && (
           <Prism language="bash" showLineNumbers style={nord}>
-            {jobLog.content}
+            {jobDetail.log.content}
           </Prism>
         )}
       </Box>

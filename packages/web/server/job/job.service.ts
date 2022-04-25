@@ -1,15 +1,15 @@
 import { Job, Run } from "@openci/core";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Scope } from "@nestjs/common";
 import { defaultOkResponse, getErrorResponse, getOkResponse } from "../utils.js";
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class JobService {
-  getJobLog(id: number) {
-    const res = Job.getJobLog(id);
+  getJobDetail(id: number) {
+    const res = Job.getJobDetail(id);
     if (res) {
       return getOkResponse(res);
     } else {
-      return getErrorResponse("Unable to find log file");
+      return getErrorResponse("Unable to get job detail");
     }
   }
 
