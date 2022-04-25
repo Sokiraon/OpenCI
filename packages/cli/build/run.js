@@ -8,14 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { Project, Run } from "@openci/core";
+import MessageStream from "@openci/core/build/run/message-stream";
 import chalk from "chalk";
 import Printer from "./printer";
 export default function run(projectName, options) {
     return __awaiter(this, void 0, void 0, function* () {
+        const messageStream = new MessageStream();
+        messageStream.onMessageReceived = message => {
+            if (message.type === "out") {
+                process.stdout.write(message.content);
+            }
+            else {
+                process.stderr.write(message.content);
+            }
+        };
         if (projectName) {
             const project = Project.getByName(projectName);
             if (project) {
-                yield Run.startRemote(project.id, process.stdout, process.stderr, options);
+                yield Run.startRemote(project.id, options, messageStream);
             }
             else {
                 Printer.error(`Failed to find specified project [${chalk.blue(projectName)}]`);
@@ -23,7 +33,7 @@ export default function run(projectName, options) {
             }
         }
         else {
-            yield Run.startLocal(process.cwd(), process.stdout, process.stderr, options);
+            yield Run.startLocal(process.cwd(), options, messageStream);
         }
     });
 }

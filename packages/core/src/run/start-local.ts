@@ -1,5 +1,4 @@
 import Run from ".";
-import stream from "stream";
 import reporter from "./reporter.js";
 import { join } from "path";
 import { prepareWorkspace } from "./initialization.js";
@@ -9,16 +8,16 @@ import parseCIFile from "../parser/index.js";
 import { exit } from "process";
 import chalk from "chalk";
 import ExprRunner from "./expr-runner.js";
+import MessageStream from "./message-stream";
 
 export default async function startLocalProject(
   path: string,
-  out: stream.Writable,
-  err: stream.Writable,
-  options?: Run.Options
+  options?: Run.Options,
+  stream?: MessageStream
 ) {
-  reporter.init(path, out, err);
+  reporter.init(path, stream);
   await prepareWorkspace(path, options?.branch);
-  const filePath = join(path, options?.input ?? DEFAULT_CIFILE);
+  const filePath = join(path, options?.input || DEFAULT_CIFILE);
   let parseResult: VisitStagesResult;
   try {
     parseResult = parseCIFile(filePath);

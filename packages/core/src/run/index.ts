@@ -1,6 +1,6 @@
 import startLocalProject from "./start-local.js";
-import stream from "stream";
 import startRemoteProject from "./start-remote.js";
+import MessageStream from "./message-stream.js";
 
 namespace Run {
   export type Options = {
@@ -11,20 +11,18 @@ namespace Run {
 
   export async function startLocal(
     path: string,
-    out: stream.Writable,
-    err: stream.Writable = out,
-    options?: Options
+    options?: Options,
+    stream?: MessageStream
   ) {
-    await startLocalProject(path, out, err, options);
+    await startLocalProject(path, options, stream);
   }
 
   export async function startRemote(
     projectId: number,
-    out: stream.Writable,
-    err: stream.Writable = out,
-    options?: Options
+    options?: Options,
+    stream?: MessageStream
   ) {
-    await startRemoteProject(projectId, out, err, options);
+    await startRemoteProject(projectId, options, stream);
   }
 }
 

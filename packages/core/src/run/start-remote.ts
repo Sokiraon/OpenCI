@@ -1,4 +1,3 @@
-import stream from "stream";
 import Run from ".";
 import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
@@ -9,23 +8,26 @@ import { prepareWorkspace } from "./initialization.js";
 import reporter from "./reporter.js";
 import chalk from "chalk";
 import Job from "../job/index.js";
+import MessageStream from "./message-stream";
 
 export default async function startRemoteProject(
   projectId: number,
-  out: stream.Writable,
-  err: stream.Writable,
-  options?: Run.Options
+  options?: Run.Options,
+  stream?: MessageStream
 ) {
   const project = Project.getById(projectId);
   if (!project) {
-    err.write("Failed to find specified project");
+    stream?.send({
+      type: "err",
+      content: "Failed to find specified project",
+    });
     process.exit(1);
   }
-  reporter.init(project, out, err);
+  reporter.init(project, stream);
   await prepareWorkspace(project, options?.branch);
   let parseResult: VisitStagesResult;
   try {
-    parseResult = parseCIFile(options?.input ?? DEFAULT_CIFILE);
+    parseResult = parseCIFile(options?.input || DEFAULT_CIFILE);
   } catch (error) {
     if (error instanceof Error) {
       reporter.error(error.message);

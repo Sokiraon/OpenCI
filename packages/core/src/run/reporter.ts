@@ -1,5 +1,4 @@
 import { exit } from "process";
-import stream from "stream";
 import { createFile, getDateStr } from "../helpers.js";
 import chalk, { ChalkInstance } from "chalk";
 import fs from "fs";
@@ -8,18 +7,14 @@ import { join } from "path";
 import Project from "../project/index.js";
 import Job from "../job/index.js";
 import { LOG_DIR } from "../constants.js";
+import MessageStream from "./message-stream.js";
 
 class Reporter {
   #filePath: string = "";
   #jobId?: number;
-  #out: stream.Writable = new stream.Writable();
-  #err: stream.Writable = new stream.Writable();
+  #stream?: MessageStream;
 
-  init(
-    pathSpecifier: string | Project.Record,
-    out: stream.Writable,
-    err: stream.Writable = out
-  ) {
+  init(pathSpecifier: string | Project.Record, stream?: MessageStream) {
     let filePath = "";
     if (typeof pathSpecifier === "string") {
       filePath = join(pathSpecifier, "CILogs", `job_log-${getDateStr()}.log`);
@@ -33,10 +28,12 @@ class Reporter {
       Job.setLogPath(this.#jobId, filePath);
     }
     this.#filePath = filePath;
-    this.#out = out;
-    this.#err = err;
+    this.#stream = stream;
     if (createFile(filePath) === false) {
-      err.write(`Error: failed to create log file at ${filePath}`);
+      stream?.send({
+        type: "err",
+        content: `Error: failed to create log file at ${filePath}`,
+      });
       exit(1);
     }
   }
@@ -51,7 +48,7 @@ class Reporter {
     message: string,
     type?: string,
     chalk?: ChalkInstance,
-    target: stream.Writable = this.#out
+    streamType: "err" | "out" = "out"
   ) {
     if (message.endsWith("\n")) {
       message = message.slice(0, -1);
@@ -63,10 +60,16 @@ class Reporter {
       const dateStr = getDateStr();
 
       if (type && chalk) {
-        target.write(`[${dateStr}] ${chalk(type)} ${message}`);
+        this.#stream?.send({
+          type: streamType,
+          content: `[${dateStr}] ${chalk(type)} ${message}`,
+        });
         fs.appendFileSync(this.#filePath, `[${dateStr}] ${type} ${message}`);
       } else {
-        target.write(`[${dateStr}] ${message}`);
+        this.#stream?.send({
+          type: streamType,
+          content: `[${dateStr}] ${message}`,
+        });
         fs.appendFileSync(this.#filePath, `[${dateStr}] ${message}`);
       }
     }
@@ -85,7 +88,7 @@ class Reporter {
   }
 
   error(message: string) {
-    this.#log(message, figureSet.cross, chalk.red, this.#err);
+    this.#log(message, figureSet.cross, chalk.red, "err");
     this.updateJobStatus(Job.Status.FinishError);
   }
 

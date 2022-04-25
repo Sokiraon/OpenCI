@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import Run from ".";
-import stream from "stream";
-export default function startLocalProject(path: string, out: stream.Writable, err: stream.Writable, options?: Run.Options): Promise<void>;
+import MessageStream from "./message-stream";
+export default function startLocalProject(path: string, options?: Run.Options, stream?: MessageStream): Promise<void>;

@@ -167,7 +167,16 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
           </Box>
         </Tooltip>
       </Box>
-      <Box sx={{ px: 3, py: 2, fontSize: "13px" }}>
+      <Box
+        sx={{
+          maxHeight: "80%",
+          px: 3,
+          py: 2,
+          fontSize: "13px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Box sx={{ display: "flex", columnGap: "8px" }}>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Log

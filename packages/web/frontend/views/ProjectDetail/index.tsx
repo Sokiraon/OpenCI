@@ -12,10 +12,6 @@ import {
   BoxProps,
   Button,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   IconButton,
   Paper,
   styled,
@@ -24,7 +20,6 @@ import {
 } from "@mui/material";
 import { ColDef, ICellRendererParams } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import { Field, Form, Formik } from "formik";
 import { TextField as FormikTextField } from "formik-mui";
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -35,13 +30,11 @@ import useBarTitle from "../../hooks/useBarTitle";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import useMessage from "../../hooks/useMessage";
-import {
-  deleteProject,
-  getProjectDetail,
-  updateProject,
-} from "../../requests/project";
+import { deleteProject, getProjectDetail } from "../../requests/project";
 import Project from "@openci/core/build/project";
 import Job from "@openci/core/build/job";
+import EditProjectDialog from "./EditProjectDialog";
+import StartJobDialog from "./StartJobDialog";
 
 interface UrlParams extends Record<string, any> {
   id: number;
@@ -106,8 +99,8 @@ export default function ProjectDetail() {
       {
         field: "status",
         headerName: "Status",
-        width: 160,
-        minWidth: 112,
+        width: 104,
+        minWidth: 104,
         cellRenderer: (params: ICellRendererParams) => {
           switch (params.value) {
             case 0:
@@ -138,7 +131,7 @@ export default function ProjectDetail() {
         },
       },
       { field: "id", headerName: "Job ID", width: 200 },
-      { field: "createdAt", headerName: "Created At", flex: 2 },
+      { field: "createdAt", headerName: "Created At", flex: 2, sort: "desc" },
       { field: "updatedAt", headerName: "Updated At", flex: 3 },
       {
         headerName: "Actions",
@@ -172,8 +165,8 @@ export default function ProjectDetail() {
     []
   );
 
+  const [openRun, setOpenRun] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const closeEdit = useCallback(() => setOpenEdit(false), []);
 
   const [openDelete, setOpenDelete] = useState(false);
   const handleDeleteProject = useCallback(() => {
@@ -200,6 +193,7 @@ export default function ProjectDetail() {
             variant="contained"
             disableElevation
             size="small"
+            onClick={() => setOpenRun(true)}
           >
             Start Job
           </Button>
@@ -226,9 +220,15 @@ export default function ProjectDetail() {
         </Box>
       </Box>
       <Box sx={{ display: "flex", flexDirection: "column", rowGap: "4px", mb: 2 }}>
-        <ProjectInfoItem label="Description:" content={projectDetail?.project.description} />
+        <ProjectInfoItem
+          label="Description:"
+          content={projectDetail?.project.description}
+        />
         <ProjectInfoItem label="Repo Src:" content={projectDetail?.project.src} />
-        <ProjectInfoItem label="Default Branch:" content={projectDetail?.project.defaultBranch} />
+        <ProjectInfoItem
+          label="Default Branch:"
+          content={projectDetail?.project.defaultBranch}
+        />
       </Box>
       <Paper className="ag-theme-material" sx={{ width: 1, overflow: "hidden" }}>
         <AgGridReact
@@ -238,72 +238,22 @@ export default function ProjectDetail() {
           domLayout="autoHeight"
           animateRows
           enableCellTextSelection
+          pagination
+          paginationPageSize={8}
         />
       </Paper>
-      <Dialog open={openEdit} onClose={closeEdit}>
-        <DialogTitle>Edit Project</DialogTitle>
-        <Formik
-          initialValues={projectDetail?.project ?? {}}
-          validate={values => {
-            const errors: Record<string, string> = {};
-            for (const [key, value] of Object.entries(values)) {
-              if (!value) {
-                errors[key] = "Required";
-              }
-            }
-            return errors;
-          }}
-          onSubmit={(values, { setSubmitting }) => {
-            updateProject(values as any)
-              .then(() => {
-                showSuccess("Successfully updated project");
-                setOpenEdit(false);
-                forceUpdate();
-              })
-              .catch(error => showError(error.msg))
-              .finally(() => setSubmitting(false));
-          }}
-        >
-          {({ submitForm }) => (
-            <>
-              <DialogContent>
-                <Form>
-                  <Field
-                    component={TextField}
-                    variant="filled"
-                    name="description"
-                    label="Project Description"
-                    helperText="Required"
-                    required
-                  />
-                  <br />
-                  <Field
-                    component={TextField}
-                    variant="filled"
-                    name="src"
-                    label="Repo Src"
-                    helperText="Required"
-                    required
-                  />
-                  <br />
-                  <Field
-                    component={TextField}
-                    variant="filled"
-                    name="defaultBranch"
-                    label="Default Branch"
-                    helperText="Required"
-                    required
-                  />
-                </Form>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={closeEdit}>Cancel</Button>
-                <Button onClick={submitForm}>Confirm</Button>
-              </DialogActions>
-            </>
-          )}
-        </Formik>
-      </Dialog>
+      <StartJobDialog
+        open={openRun}
+        setOpen={setOpenRun}
+        project={projectDetail?.project}
+        onFinish={() => forceUpdate()}
+      />
+      <EditProjectDialog
+        open={openEdit}
+        setOpen={setOpenEdit}
+        project={projectDetail?.project}
+        onFinish={() => forceUpdate()}
+      />
       <DeleteProjectDialog
         open={openDelete}
         setOpen={setOpenDelete}

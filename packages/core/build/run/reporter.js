@@ -9,9 +9,8 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Reporter_instances, _Reporter_filePath, _Reporter_jobId, _Reporter_out, _Reporter_err, _Reporter_log;
+var _Reporter_instances, _Reporter_filePath, _Reporter_jobId, _Reporter_stream, _Reporter_log;
 import { exit } from "process";
-import stream from "stream";
 import { createFile, getDateStr } from "../helpers.js";
 import chalk from "chalk";
 import fs from "fs";
@@ -24,10 +23,9 @@ class Reporter {
         _Reporter_instances.add(this);
         _Reporter_filePath.set(this, "");
         _Reporter_jobId.set(this, void 0);
-        _Reporter_out.set(this, new stream.Writable());
-        _Reporter_err.set(this, new stream.Writable());
+        _Reporter_stream.set(this, void 0);
     }
-    init(pathSpecifier, out, err = out) {
+    init(pathSpecifier, stream) {
         let filePath = "";
         if (typeof pathSpecifier === "string") {
             filePath = join(pathSpecifier, "CILogs", `job_log-${getDateStr()}.log`);
@@ -38,10 +36,12 @@ class Reporter {
             Job.setLogPath(__classPrivateFieldGet(this, _Reporter_jobId, "f"), filePath);
         }
         __classPrivateFieldSet(this, _Reporter_filePath, filePath, "f");
-        __classPrivateFieldSet(this, _Reporter_out, out, "f");
-        __classPrivateFieldSet(this, _Reporter_err, err, "f");
+        __classPrivateFieldSet(this, _Reporter_stream, stream, "f");
         if (createFile(filePath) === false) {
-            err.write(`Error: failed to create log file at ${filePath}`);
+            stream === null || stream === void 0 ? void 0 : stream.send({
+                type: "err",
+                content: `Error: failed to create log file at ${filePath}`,
+            });
             exit(1);
         }
     }
@@ -60,7 +60,7 @@ class Reporter {
         __classPrivateFieldGet(this, _Reporter_instances, "m", _Reporter_log).call(this, message, figureSet.warning, chalk.yellow);
     }
     error(message) {
-        __classPrivateFieldGet(this, _Reporter_instances, "m", _Reporter_log).call(this, message, figureSet.cross, chalk.red, __classPrivateFieldGet(this, _Reporter_err, "f"));
+        __classPrivateFieldGet(this, _Reporter_instances, "m", _Reporter_log).call(this, message, figureSet.cross, chalk.red, "err");
         this.updateJobStatus(Job.Status.FinishError);
     }
     sysCommand(message) {
@@ -73,7 +73,8 @@ class Reporter {
         __classPrivateFieldGet(this, _Reporter_instances, "m", _Reporter_log).call(this, message);
     }
 }
-_Reporter_filePath = new WeakMap(), _Reporter_jobId = new WeakMap(), _Reporter_out = new WeakMap(), _Reporter_err = new WeakMap(), _Reporter_instances = new WeakSet(), _Reporter_log = function _Reporter_log(message, type, chalk, target = __classPrivateFieldGet(this, _Reporter_out, "f")) {
+_Reporter_filePath = new WeakMap(), _Reporter_jobId = new WeakMap(), _Reporter_stream = new WeakMap(), _Reporter_instances = new WeakSet(), _Reporter_log = function _Reporter_log(message, type, chalk, streamType = "out") {
+    var _a, _b;
     if (message.endsWith("\n")) {
         message = message.slice(0, -1);
     }
@@ -82,11 +83,17 @@ _Reporter_filePath = new WeakMap(), _Reporter_jobId = new WeakMap(), _Reporter_o
         message += "\n";
         const dateStr = getDateStr();
         if (type && chalk) {
-            target.write(`[${dateStr}] ${chalk(type)} ${message}`);
+            (_a = __classPrivateFieldGet(this, _Reporter_stream, "f")) === null || _a === void 0 ? void 0 : _a.send({
+                type: streamType,
+                content: `[${dateStr}] ${chalk(type)} ${message}`,
+            });
             fs.appendFileSync(__classPrivateFieldGet(this, _Reporter_filePath, "f"), `[${dateStr}] ${type} ${message}`);
         }
         else {
-            target.write(`[${dateStr}] ${message}`);
+            (_b = __classPrivateFieldGet(this, _Reporter_stream, "f")) === null || _b === void 0 ? void 0 : _b.send({
+                type: streamType,
+                content: `[${dateStr}] ${message}`,
+            });
             fs.appendFileSync(__classPrivateFieldGet(this, _Reporter_filePath, "f"), `[${dateStr}] ${message}`);
         }
     }

@@ -15,19 +15,21 @@ import { prepareWorkspace } from "./initialization.js";
 import reporter from "./reporter.js";
 import chalk from "chalk";
 import Job from "../job/index.js";
-export default function startRemoteProject(projectId, out, err, options) {
-    var _a;
+export default function startRemoteProject(projectId, options, stream) {
     return __awaiter(this, void 0, void 0, function* () {
         const project = Project.getById(projectId);
         if (!project) {
-            err.write("Failed to find specified project");
+            stream === null || stream === void 0 ? void 0 : stream.send({
+                type: "err",
+                content: "Failed to find specified project",
+            });
             process.exit(1);
         }
-        reporter.init(project, out, err);
+        reporter.init(project, stream);
         yield prepareWorkspace(project, options === null || options === void 0 ? void 0 : options.branch);
         let parseResult;
         try {
-            parseResult = parseCIFile((_a = options === null || options === void 0 ? void 0 : options.input) !== null && _a !== void 0 ? _a : DEFAULT_CIFILE);
+            parseResult = parseCIFile((options === null || options === void 0 ? void 0 : options.input) || DEFAULT_CIFILE);
         }
         catch (error) {
             if (error instanceof Error) {

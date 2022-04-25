@@ -15,12 +15,11 @@ import parseCIFile from "../parser/index.js";
 import { exit } from "process";
 import chalk from "chalk";
 import ExprRunner from "./expr-runner.js";
-export default function startLocalProject(path, out, err, options) {
-    var _a;
+export default function startLocalProject(path, options, stream) {
     return __awaiter(this, void 0, void 0, function* () {
-        reporter.init(path, out, err);
+        reporter.init(path, stream);
         yield prepareWorkspace(path, options === null || options === void 0 ? void 0 : options.branch);
-        const filePath = join(path, (_a = options === null || options === void 0 ? void 0 : options.input) !== null && _a !== void 0 ? _a : DEFAULT_CIFILE);
+        const filePath = join(path, (options === null || options === void 0 ? void 0 : options.input) || DEFAULT_CIFILE);
         let parseResult;
         try {
             parseResult = parseCIFile(filePath);
