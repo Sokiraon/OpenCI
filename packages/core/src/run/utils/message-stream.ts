@@ -16,9 +16,9 @@ interface UserInputResponse {
   content: string;
 }
 
-type Message = TextMessage | UserInputRequest | UserInputResponse;
-
 namespace MessageStream {
+  export type Message = TextMessage | UserInputRequest | UserInputResponse;
+
   export class Duplex {
     streamConnected?: Duplex;
     messagesToHandle: Message[] = [];
@@ -29,19 +29,8 @@ namespace MessageStream {
       this.streamConnected?.onMessageReceived?.(message);
     }
 
-    read(): Message | undefined {
+    read() {
       return this.messagesToHandle.shift();
-    }
-
-    async readNextMessage(): Promise<Message> {
-      return new Promise(resolve => {
-        setInterval(() => {
-          const message = this.read();
-          if (message) {
-            resolve(message);
-          }
-        });
-      });
     }
   }
 

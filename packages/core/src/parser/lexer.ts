@@ -79,7 +79,7 @@ export const Str = createToken({
 
 export const Num = createToken({
   name: "Number",
-  pattern: /[1-9]\d*(\.\d+)?/,
+  pattern: /\d+(\.\d*)?/,
 });
 
 export const Equal = createToken({

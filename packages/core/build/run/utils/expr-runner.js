@@ -77,7 +77,15 @@ export default class ExpressionRunner {
                     type: "inputReq",
                     content: envDef.value,
                 });
-                const message = yield this.messageStream.readNextMessage();
+                const message = yield new Promise(resolve => {
+                    const intervalId = setInterval(() => {
+                        const msg = this.messageStream.read();
+                        if (msg) {
+                            clearInterval(intervalId);
+                            resolve(msg);
+                        }
+                    });
+                });
                 if (message.type === "inputRes" && typeof message.content === "string") {
                     value = message.content;
                 }

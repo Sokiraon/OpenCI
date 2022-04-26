@@ -1,13 +1,11 @@
 stages {
-  env {
-    NODE_VERSION = sh "node -v"
-  }
   build {
     env {
-      BUILD_BRANCH = input("Specify a branch to build:")
+      BRANCH = input("Specify a branch:")
+      DEBUG = confirm("Should be in debug mode?")
+      API_VERSION = rawlist("Select an API version:", [0, 1])
+      OPTIONS = checkbox("Add build options:", [ "upload_pgy", "unit_test" ])
     }
-    echo "Node Version: $NODE_VERSION"
-    echo "Build Branch: $BUILD_BRANCH"
-    sh "yarn install"
+    sh "env"
   }
 }

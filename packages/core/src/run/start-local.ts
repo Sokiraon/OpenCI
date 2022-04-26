@@ -57,5 +57,5 @@ export default async function startLocalProject(
     reporter.success(`Finished running stage [${stage.name}]`);
   }
   reporter.success("Finished all the operations!");
-  process.exit(0);
+  exit(0);
 }

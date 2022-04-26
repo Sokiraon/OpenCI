@@ -10,7 +10,12 @@ export async function promptConfirm(message: string): Promise<boolean> {
   return answers.confirm;
 }
 
-export async function promptQuestion(question: { type: string; message: string }) {
+type InquirerAnswer = string[] | number[] | string | number | boolean;
+
+export async function promptQuestion(question: {
+  type: string;
+  message: string;
+}): Promise<InquirerAnswer> {
   const answers = await inquirer.prompt([
     {
       ...question,

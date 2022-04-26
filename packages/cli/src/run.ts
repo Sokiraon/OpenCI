@@ -1,7 +1,6 @@
 import { Project, Run } from "@openci/core";
 import MessageStream from "@openci/core/build/run/message-stream";
 import chalk from "chalk";
-import inquirer from "inquirer";
 import { promptQuestion } from "./helpers";
 import Printer from "./printer";
 
@@ -23,9 +22,15 @@ export default async function run(
         break;
       case "inputReq":
         promptQuestion(message.content).then(res => {
+          let content = "";
+          if (Array.isArray(res)) {
+            content = res.map((item: string | number) => String(item)).join(":");
+          } else {
+            content = String(res);
+          }
           clientStream.write({
             type: "inputRes",
-            content: res,
+            content,
           });
         });
         break;

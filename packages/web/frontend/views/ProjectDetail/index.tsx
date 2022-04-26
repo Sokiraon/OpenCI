@@ -232,7 +232,7 @@ export default function ProjectDetail() {
           animateRows
           enableCellTextSelection
           pagination
-          paginationPageSize={8}
+          paginationPageSize={9}
         />
       </Paper>
       <StartJobDialog

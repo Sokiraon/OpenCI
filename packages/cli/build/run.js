@@ -28,9 +28,16 @@ export default function run(projectName, options) {
                     break;
                 case "inputReq":
                     promptQuestion(message.content).then(res => {
+                        let content = "";
+                        if (Array.isArray(res)) {
+                            content = res.map((item) => String(item)).join(":");
+                        }
+                        else {
+                            content = String(res);
+                        }
                         clientStream.write({
                             type: "inputRes",
-                            content: res,
+                            content,
                         });
                     });
                     break;

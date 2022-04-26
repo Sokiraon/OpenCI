@@ -59,6 +59,6 @@ export default function startLocalProject(path, options, messageStream) {
             reporter.success(`Finished running stage [${stage.name}]`);
         }
         reporter.success("Finished all the operations!");
-        process.exit(0);
+        exit(0);
     });
 }
