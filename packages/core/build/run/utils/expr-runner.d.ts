@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { EnvDefs } from "../parser/visitor.js";
+import { EnvDefs } from "../../parser/visitor.js";
 import MessageStream from "./message-stream.js";
 export default class ExpressionRunner {
     private readonly globalEnvs;

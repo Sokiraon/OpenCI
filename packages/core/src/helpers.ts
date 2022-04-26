@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
-import reporter from "./run/reporter.js";
+import reporter from "./run/utils/reporter.js";
 import child_process from "child_process";
 
 export function getDateStr() {

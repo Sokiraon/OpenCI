@@ -1,7 +1,7 @@
 import { join } from "path";
-import { WORKSPACE_DIR } from "../constants.js";
-import { execSysCommand } from "../helpers.js";
-import Project from "../project/index.js";
+import { WORKSPACE_DIR } from "../../constants.js";
+import { execSysCommand } from "../../helpers.js";
+import Project from "../../project/index.js";
 import reporter from "./reporter.js";
 import fs from "fs";
 

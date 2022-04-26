@@ -10,22 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
 import Project from "../project/index.js";
-import ExprRunner from "./expr-runner.js";
-import { prepareWorkspace } from "./initialization.js";
-import reporter from "./reporter.js";
+import { prepareWorkspace } from "./utils/initialization.js";
+import reporter from "./utils/reporter.js";
 import chalk from "chalk";
 import Job from "../job/index.js";
-export default function startRemoteProject(projectId, options, stream) {
+import ExpressionRunner from "./utils/expr-runner.js";
+export default function startRemoteProject(projectId, options, messageStream) {
     return __awaiter(this, void 0, void 0, function* () {
         const project = Project.getById(projectId);
         if (!project) {
-            stream === null || stream === void 0 ? void 0 : stream.send({
-                type: "err",
+            messageStream.write({
+                type: "error",
                 content: "Failed to find specified project",
             });
             process.exit(1);
         }
-        reporter.init(project, stream);
+        reporter.init(project, messageStream);
         yield prepareWorkspace(project, options === null || options === void 0 ? void 0 : options.branch);
         let parseResult;
         try {
@@ -53,18 +53,20 @@ export default function startRemoteProject(projectId, options, stream) {
         else {
             stagesToRun.push(...parseResult.stages);
         }
+        const exprRunner = new ExpressionRunner(process.env, messageStream);
         if (Array.isArray(parseResult.env)) {
-            yield ExprRunner.setGlobalEnvs(parseResult.env);
+            yield exprRunner.setGlobalEnvs(parseResult.env);
         }
         for (const stage of stagesToRun) {
             reporter.info(`Begin running stage [${stage.name}]`);
-            yield ExprRunner.setStageEnvs(stage.env);
+            yield exprRunner.setStageEnvs(stage.env);
             for (const step of stage.steps) {
-                yield ExprRunner.exec(step);
+                yield exprRunner.exec(step);
             }
             reporter.success(`Finished running stage [${stage.name}]`);
         }
         reporter.success("Finished all the operations!");
         reporter.updateJobStatus(Job.Status.FinishSuccess);
+        process.exit(0);
     });
 }

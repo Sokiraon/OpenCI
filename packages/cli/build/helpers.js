@@ -19,3 +19,11 @@ export function promptConfirm(message) {
         return answers.confirm;
     });
 }
+export function promptQuestion(question) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const answers = yield inquirer.prompt([
+            Object.assign(Object.assign({}, question), { name: "value" }),
+        ]);
+        return answers.value;
+    });
+}

@@ -9,3 +9,13 @@ export async function promptConfirm(message: string): Promise<boolean> {
   });
   return answers.confirm;
 }
+
+export async function promptQuestion(question: { type: string; message: string }) {
+  const answers = await inquirer.prompt([
+    {
+      ...question,
+      name: "value",
+    },
+  ]);
+  return answers.value;
+}

@@ -1,13 +1,17 @@
-import { EnvDefs } from "../parser/visitor.js";
+import { EnvDefs } from "../../parser/visitor.js";
 import reporter from "./reporter.js";
 import child_process from "child_process";
+import MessageStream from "./message-stream.js";
 
-class ExpressionRunner {
-  constructor(
-    private readonly globalEnvs = process.env,
-    private stageEnvs = process.env
-  ) {
-    // do nothing
+export default class ExpressionRunner {
+  private readonly globalEnvs: NodeJS.ProcessEnv;
+  private stageEnvs: NodeJS.ProcessEnv;
+  private messageStream: MessageStream.Duplex;
+
+  constructor(initialEnvs: NodeJS.ProcessEnv, messageStream: MessageStream.Duplex) {
+    this.globalEnvs = initialEnvs;
+    this.stageEnvs = initialEnvs;
+    this.messageStream = messageStream;
   }
 
   async exec(commandDef: { type: string; expression: string }): Promise<string> {
@@ -65,6 +69,15 @@ class ExpressionRunner {
       value = envDef.value;
     } else if ("expression" in envDef.value) {
       value = await this.exec(envDef.value);
+    } else {
+      this.messageStream.write({
+        type: "inputReq",
+        content: envDef.value,
+      });
+      const message = await this.messageStream.readNextMessage();
+      if (message.type === "inputRes" && typeof message.content === "string") {
+        value = message.content;
+      }
     }
     return value;
   }
@@ -86,7 +99,3 @@ class ExpressionRunner {
     }
   }
 }
-
-const ExprRunner = new ExpressionRunner();
-
-export default ExprRunner;

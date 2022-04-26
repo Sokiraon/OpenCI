@@ -1,20 +1,23 @@
 import { exit } from "process";
-import { createFile, getDateStr } from "../helpers.js";
+import { createFile, getDateStr } from "../../helpers.js";
 import chalk, { ChalkInstance } from "chalk";
 import fs from "fs";
 import figureSet from "figures";
 import { join } from "path";
-import Project from "../project/index.js";
-import Job from "../job/index.js";
-import { LOG_DIR } from "../constants.js";
+import Project from "../../project/index.js";
+import Job from "../../job/index.js";
+import { LOG_DIR } from "../../constants.js";
 import MessageStream from "./message-stream.js";
 
 class Reporter {
   #filePath: string = "";
   #jobId?: number;
-  #stream?: MessageStream;
+  #messageStream?: MessageStream.Duplex;
 
-  init(pathSpecifier: string | Project.Record, stream?: MessageStream) {
+  init(
+    pathSpecifier: string | Project.Record,
+    messageStream?: MessageStream.Duplex
+  ) {
     let filePath = "";
     if (typeof pathSpecifier === "string") {
       filePath = join(pathSpecifier, "CILogs", `job_log-${getDateStr()}.log`);
@@ -28,10 +31,10 @@ class Reporter {
       Job.setLogPath(this.#jobId, filePath);
     }
     this.#filePath = filePath;
-    this.#stream = stream;
+    this.#messageStream = messageStream;
     if (createFile(filePath) === false) {
-      stream?.send({
-        type: "err",
+      messageStream?.write({
+        type: "error",
         content: `Error: failed to create log file at ${filePath}`,
       });
       exit(1);
@@ -48,7 +51,7 @@ class Reporter {
     message: string,
     type?: string,
     chalk?: ChalkInstance,
-    streamType: "err" | "out" = "out"
+    streamType: "error" | "output" = "output"
   ) {
     if (message.endsWith("\n")) {
       message = message.slice(0, -1);
@@ -60,13 +63,13 @@ class Reporter {
       const dateStr = getDateStr();
 
       if (type && chalk) {
-        this.#stream?.send({
+        this.#messageStream?.write({
           type: streamType,
           content: `[${dateStr}] ${chalk(type)} ${message}`,
         });
         fs.appendFileSync(this.#filePath, `[${dateStr}] ${type} ${message}`);
       } else {
-        this.#stream?.send({
+        this.#messageStream?.write({
           type: streamType,
           content: `[${dateStr}] ${message}`,
         });
@@ -88,7 +91,7 @@ class Reporter {
   }
 
   error(message: string) {
-    this.#log(message, figureSet.cross, chalk.red, "err");
+    this.#log(message, figureSet.cross, chalk.red, "error");
     this.updateJobStatus(Job.Status.FinishError);
   }
 

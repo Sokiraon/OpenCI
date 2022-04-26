@@ -11,15 +11,15 @@ import startLocalProject from "./start-local.js";
 import startRemoteProject from "./start-remote.js";
 var Run;
 (function (Run) {
-    function startLocal(path, options, stream) {
+    function startLocal(path, options, messageStream) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield startLocalProject(path, options, stream);
+            yield startLocalProject(path, options, messageStream);
         });
     }
     Run.startLocal = startLocal;
-    function startRemote(projectId, options, stream) {
+    function startRemote(projectId, options, messageStream) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield startRemoteProject(projectId, options, stream);
+            yield startRemoteProject(projectId, options, messageStream);
         });
     }
     Run.startRemote = startRemote;

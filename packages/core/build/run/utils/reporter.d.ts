@@ -1,5 +1,5 @@
-import Project from "../project/index.js";
-import Job from "../job/index.js";
+import Project from "../../project/index.js";
+import Job from "../../job/index.js";
 import MessageStream from "./message-stream.js";
 declare class Reporter {
     #private;

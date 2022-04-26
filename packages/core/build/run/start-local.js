@@ -7,17 +7,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import reporter from "./reporter.js";
+import reporter from "./utils/reporter.js";
 import { join } from "path";
-import { prepareWorkspace } from "./initialization.js";
+import { prepareWorkspace } from "./utils/initialization.js";
 import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
 import { exit } from "process";
 import chalk from "chalk";
-import ExprRunner from "./expr-runner.js";
-export default function startLocalProject(path, options, stream) {
+import ExpressionRunner from "./utils/expr-runner.js";
+export default function startLocalProject(path, options, messageStream) {
     return __awaiter(this, void 0, void 0, function* () {
-        reporter.init(path, stream);
+        reporter.init(path, messageStream);
         yield prepareWorkspace(path, options === null || options === void 0 ? void 0 : options.branch);
         const filePath = join(path, (options === null || options === void 0 ? void 0 : options.input) || DEFAULT_CIFILE);
         let parseResult;
@@ -46,17 +46,19 @@ export default function startLocalProject(path, options, stream) {
         else {
             stagesToRun.push(...parseResult.stages);
         }
+        const exprRunner = new ExpressionRunner(process.env, messageStream);
         if (Array.isArray(parseResult.env)) {
-            yield ExprRunner.setGlobalEnvs(parseResult.env);
+            yield exprRunner.setGlobalEnvs(parseResult.env);
         }
         for (const stage of stagesToRun) {
             reporter.info(`Begin running stage [${stage.name}]`);
-            yield ExprRunner.setStageEnvs(stage.env);
+            yield exprRunner.setStageEnvs(stage.env);
             for (const step of stage.steps) {
-                yield ExprRunner.exec(step);
+                yield exprRunner.exec(step);
             }
             reporter.success(`Finished running stage [${stage.name}]`);
         }
         reporter.success("Finished all the operations!");
+        process.exit(0);
     });
 }

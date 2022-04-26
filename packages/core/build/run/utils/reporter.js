@@ -11,13 +11,13 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _Reporter_instances, _Reporter_filePath, _Reporter_jobId, _Reporter_messageStream, _Reporter_log;
 import { exit } from "process";
-import { createFile, getDateStr } from "../helpers.js";
+import { createFile, getDateStr } from "../../helpers.js";
 import chalk from "chalk";
 import fs from "fs";
 import figureSet from "figures";
 import { join } from "path";
-import Job from "../job/index.js";
-import { LOG_DIR } from "../constants.js";
+import Job from "../../job/index.js";
+import { LOG_DIR } from "../../constants.js";
 class Reporter {
     constructor() {
         _Reporter_instances.add(this);
