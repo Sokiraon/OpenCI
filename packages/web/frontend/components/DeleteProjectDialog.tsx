@@ -19,10 +19,10 @@ export default function DeleteProjectDialog(props: DeleteProjectDialogProps) {
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)}>
-      <DialogTitle>Confirm Delete</DialogTitle>
+      <DialogTitle>Delete The Project?</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          All data concerning the project, including configurations and operation
+          All data concerning the project, including configurations and activity
           history, will be removed accordingly.
         </DialogContentText>
       </DialogContent>

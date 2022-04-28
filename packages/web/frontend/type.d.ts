@@ -14,3 +14,7 @@ interface MaterialColor {
   A400: string;
   A700: string;
 }
+
+interface ChildrenProp {
+  children?: React.ReactNode;
+}

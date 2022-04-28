@@ -14,5 +14,9 @@ declare namespace Project {
     function getByName(name: string): Record | undefined;
     function update(data: Record): void;
     function remove(id: number): void;
+    function listGitUrl(url: string): {
+        branches: string[];
+        tags: string[];
+    } | undefined;
 }
 export default Project;

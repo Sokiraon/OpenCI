@@ -1,41 +1,85 @@
+import { Refresh } from "@mui/icons-material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  MenuItem,
   styled,
+  Tooltip,
 } from "@mui/material";
 import { Project } from "@openci/core";
 import { Field, Form, Formik } from "formik";
-import { TextField as FormikTextField } from "formik-mui";
-import React from "react";
+import { Select, TextField as FormikTextField } from "formik-mui";
+import React, { useCallback, useEffect, useState } from "react";
 import useMessage from "../../hooks/useMessage";
-import { updateProject } from "../../requests/project";
+import {
+  getProjectList,
+  updateProject,
+  verifyRepoUrl,
+} from "../../requests/project";
+import { ProjectDetail, RepoInfo } from "../../requests/type";
 
 const TextField = styled(FormikTextField)({
   width: 400,
-  marginTop: 4,
 });
 
 interface EditProjectDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  project: Project.Record | undefined;
+  projectDetail: ProjectDetail | undefined;
   onFinish: () => void;
 }
 
 export default function EditProjectDialog(props: EditProjectDialogProps) {
-  const { open, setOpen, project, onFinish } = props;
+  const { open, setOpen, projectDetail, onFinish } = props;
   const { showSuccess, showError } = useMessage();
+
+  const [projectList, setProjectList] = useState<Project.Record[]>([]);
+  useEffect(() => {
+    getProjectList().then(res => setProjectList(res.data));
+  }, []);
+
+  const [lastValidateSrc, setLastValidateSrc] = useState("");
+
+  const [repoInfo, setRepoInfo] = useState<RepoInfo>();
+  const validateSrc = useCallback((url: string) => {
+    verifyRepoUrl({ url }).then(res => {
+      setRepoInfo(res.data);
+      setLastValidateSrc(url);
+    });
+  }, []);
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>Edit Project</DialogTitle>
       <Formik
-        initialValues={project ?? {}}
+        initialValues={
+          projectDetail?.project ?? {
+            id: 0,
+            name: "",
+            description: "",
+            src: "",
+            defaultBranch: "",
+          }
+        }
         validate={values => {
-          const errors: Record<string, string> = {};
+          const errors: Partial<Project.Creation> = {};
+          if (
+            values.name !== projectDetail?.project.name &&
+            projectList.find(project => project.name === values.name)
+          ) {
+            errors.name = "Project name already exists";
+          }
+          if (
+            values.src !== projectDetail?.project.src &&
+            values.src !== lastValidateSrc
+          ) {
+            errors.src =
+              "Url not validated, click the validate button before you proceed";
+          }
           for (const [key, value] of Object.entries(values)) {
             if (!value) {
               errors[key] = "Required";
@@ -44,7 +88,7 @@ export default function EditProjectDialog(props: EditProjectDialogProps) {
           return errors;
         }}
         onSubmit={(values, { setSubmitting }) => {
-          updateProject(values as any)
+          updateProject(values)
             .then(() => {
               showSuccess("Successfully updated project");
               setOpen(false);
@@ -54,36 +98,70 @@ export default function EditProjectDialog(props: EditProjectDialogProps) {
             .finally(() => setSubmitting(false));
         }}
       >
-        {({ submitForm }) => (
+        {({ submitForm, values }) => (
           <>
             <DialogContent>
-              <Form>
+              <Form
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: "8px",
+                  rowGap: "16px",
+                }}
+              >
                 <Field
                   component={TextField}
-                  variant="filled"
-                  name="description"
-                  label="Project Description"
+                  name="name"
+                  label="Project Name"
                   helperText="Required"
                   required
+                  size="small"
                 />
-                <br />
                 <Field
                   component={TextField}
-                  variant="filled"
+                  name="description"
+                  label="Description"
+                  helperText="Required"
+                  required
+                  size="small"
+                  multiline
+                  rows={2}
+                />
+                <Field
+                  component={TextField}
                   name="src"
                   label="Repo Src"
                   helperText="Required"
                   required
+                  size="small"
+                  multiline
+                  InputProps={{
+                    endAdornment: (
+                      <Tooltip title="validate" placement="right">
+                        <IconButton
+                          edge="end"
+                          onClick={() => validateSrc(values.src)}
+                        >
+                          <Refresh />
+                        </IconButton>
+                      </Tooltip>
+                    ),
+                  }}
                 />
-                <br />
                 <Field
-                  component={TextField}
-                  variant="filled"
+                  component={Select}
                   name="defaultBranch"
                   label="Default Branch"
                   helperText="Required"
                   required
-                />
+                  size="small"
+                >
+                  {(repoInfo ?? projectDetail?.repoInfo)?.branches.map(branch => (
+                    <MenuItem value={branch} key={branch}>
+                      {branch}
+                    </MenuItem>
+                  ))}
+                </Field>
               </Form>
             </DialogContent>
             <DialogActions>

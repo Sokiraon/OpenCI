@@ -4,7 +4,7 @@ declare class Visitor extends Visitor_base implements ICstNodeVisitor<any, any> 
     constructor();
     string(children: StringCstChildren): string;
     number(children: NumberCstChildren): number;
-    array(children: ArrayCstChildren): number[] | string[];
+    array(children: ArrayCstChildren): string[] | number[];
     nodeStat(children: NodeStatCstChildren): {
         type: "node";
         expression: string;
@@ -29,12 +29,12 @@ declare class Visitor extends Visitor_base implements ICstNodeVisitor<any, any> 
     rawListStat(children: RawListStatCstChildren): {
         type: string;
         message: string;
-        choices: number[] | string[];
+        choices: string[] | number[];
     };
     checkboxStat(children: CheckboxStatCstChildren): {
         type: string;
         message: string;
-        choices: number[] | string[];
+        choices: string[] | number[];
     };
     selectBranchStat(children: SelectBranchStatCstChildren): {
         type: string;

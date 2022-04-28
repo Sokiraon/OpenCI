@@ -5,32 +5,33 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  MenuItem,
 } from "@mui/material";
-import { Project } from "@openci/core";
 import { Field, Form, Formik } from "formik";
-import { TextField } from "formik-mui";
+import { Select } from "formik-mui";
 import React from "react";
 import useMessage from "../../hooks/useMessage";
 import { startJob } from "../../requests/job";
+import { ProjectDetail } from "../../requests/type";
 
 interface StartJobDialogProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  project: Project.Record | undefined;
+  projectDetail: ProjectDetail | undefined;
   onFinish: () => void;
 }
 
 export default function StartJobDialog(props: StartJobDialogProps) {
-  const { open, setOpen, project, onFinish } = props;
+  const { open, setOpen, projectDetail, onFinish } = props;
   const { showSuccess, showError } = useMessage();
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>Start New Job</DialogTitle>
       <Formik
-        initialValues={{ branch: "", input: "" }}
+        initialValues={{ branch: projectDetail?.project.defaultBranch ?? "" }}
         onSubmit={values => {
-          startJob({ projectId: project?.id ?? 0, options: values })
+          startJob({ projectId: projectDetail?.project.id ?? 0, options: values })
             .then(() => {
               showSuccess("Successfully started new job");
               setOpen(false);
@@ -46,31 +47,23 @@ export default function StartJobDialog(props: StartJobDialogProps) {
           <>
             <DialogContent>
               <DialogContentText>
-                Before a new job is started, you may specify some options listed
-                below:
+                Please specify a branch to work on (a default value has been given
+                according to project configuration):
               </DialogContentText>
               <Form
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  rowGap: "16px",
-                  marginTop: "32px",
+                  marginTop: "24px",
                 }}
               >
-                <Field
-                  component={TextField}
-                  variant="filled"
-                  name="branch"
-                  label="Working Branch"
-                  placeholder={project?.defaultBranch ?? ""}
-                />
-                <Field
-                  component={TextField}
-                  variant="filled"
-                  name="input"
-                  label="CIFile Path (relative to project root)"
-                  placeholder="./CIFile"
-                />
+                <Field component={Select} name="branch" label="Working Branch">
+                  {projectDetail?.repoInfo.branches.map(branch => (
+                    <MenuItem value={branch} key={branch}>
+                      {branch}
+                    </MenuItem>
+                  ))}
+                </Field>
               </Form>
             </DialogContent>
             <DialogActions>

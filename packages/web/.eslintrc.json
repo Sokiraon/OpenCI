@@ -3,6 +3,7 @@
     "browser": true,
     "es2021": true
   },
+  "ignorePatterns": ["*.cjs"],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -19,9 +20,13 @@
   },
   "plugins": ["react", "@typescript-eslint"],
   "rules": {
+    "no-empty": "warn",
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "double"],
     "semi": ["error", "always"],
-    "@typescript-eslint/no-explicit-any": ["off"]
+    "@typescript-eslint/no-explicit-any": ["off"],
+    "@typescript-eslint/no-empty-function": ["warn"],
+    "@typescript-eslint/no-non-null-assertion": ["off"],
+    "react/no-unescaped-entities": ["off"]
   }
 }

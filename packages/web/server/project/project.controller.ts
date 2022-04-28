@@ -22,4 +22,9 @@ export class ProjectController {
   deleteProject(@Body("data") data: { id: number }) {
     return this.projectService.deleteProject(data.id);
   }
+
+  @Post("verify_git_url")
+  verifyGitUrl(@Body("data") data: { url: string }) {
+    return this.projectService.verifyGitUrl(data.url);
+  }
 }

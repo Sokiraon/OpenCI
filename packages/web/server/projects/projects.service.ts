@@ -1,6 +1,6 @@
 import { Project, Job } from "@openci/core";
 import { Injectable } from "@nestjs/common";
-import { getOkResponse } from "../utils.js";
+import { getErrorResponse, getOkResponse } from "../utils.js";
 
 @Injectable()
 export class ProjectsService {
@@ -9,9 +9,16 @@ export class ProjectsService {
   }
 
   getProjectDetail(id: number) {
-    return getOkResponse({
-      project: Project.getById(id),
-      jobs: Job.getProjectJobs(id),
-    });
+    const project = Project.getById(id);
+    if (!project) {
+      return getErrorResponse("Failed to find specified project");
+    } else {
+      const repoInfo = Project.listGitUrl(project.src);
+      return getOkResponse({
+        project,
+        repoInfo,
+        jobs: Job.getProjectJobs(id),
+      });
+    }
   }
 }

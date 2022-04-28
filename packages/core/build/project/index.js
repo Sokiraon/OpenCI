@@ -2,6 +2,7 @@ import createProject from "./create.js";
 import { getAllProjects, queryProjectById, queryProjectByName } from "./query.js";
 import removeProject from "./remove.js";
 import updateProject from "./update.js";
+import { listRemoteGitUrl } from "./utils.js";
 var Project;
 (function (Project) {
     function create(data) {
@@ -28,5 +29,9 @@ var Project;
         return removeProject(id);
     }
     Project.remove = remove;
+    function listGitUrl(url) {
+        return listRemoteGitUrl(url);
+    }
+    Project.listGitUrl = listGitUrl;
 })(Project || (Project = {}));
 export default Project;

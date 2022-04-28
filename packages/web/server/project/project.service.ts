@@ -36,4 +36,13 @@ export class ProjectService {
     Project.remove(id);
     return defaultOkResponse;
   }
+
+  verifyGitUrl(url: string) {
+    const info = Project.listGitUrl(url);
+    if (info) {
+      return getOkResponse(info);
+    } else {
+      return getErrorResponse("Unable to read from url");
+    }
+  }
 }

@@ -80,6 +80,8 @@ require("esbuild")
       ".png": "dataurl",
       ".svg": "file",
       ".css": "css",
+      ".woff": "file",
+      ".woff2": "file",
     },
     outdir: "build/frontend",
   })

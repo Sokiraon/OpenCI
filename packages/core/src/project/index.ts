@@ -2,6 +2,7 @@ import createProject from "./create.js";
 import { getAllProjects, queryProjectById, queryProjectByName } from "./query.js";
 import removeProject from "./remove.js";
 import updateProject from "./update.js";
+import { listRemoteGitUrl } from "./utils.js";
 
 namespace Project {
   export type Creation = {
@@ -35,6 +36,10 @@ namespace Project {
 
   export function remove(id: number) {
     return removeProject(id);
+  }
+
+  export function listGitUrl(url: string) {
+    return listRemoteGitUrl(url);
   }
 }
 

@@ -71,10 +71,11 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
   );
 
   useEffect(() => {
+    let intervalId: NodeJS.Timer;
     if (open) {
       fetchJobData().then(data => {
         if (data.log.running) {
-          const intervalId = setInterval(() => {
+          intervalId = setInterval(() => {
             fetchJobData().then(data => {
               if (!data.log.running) {
                 clearInterval(intervalId);
@@ -86,6 +87,11 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
         setJobDetail(data);
       });
     }
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
   }, [jobInfo.id, open, fetchJobData]);
 
   const appBarColor = useMemo<MaterialColor>(() => {
@@ -209,7 +215,7 @@ export default function JobDetailDialog(props: JobDetailDialogProps) {
       >
         <Box sx={{ display: "flex", columnGap: "8px" }}>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Log
+            Execution Log
           </Typography>
           {jobDetail && (
             <Tooltip title="Download Log File">
