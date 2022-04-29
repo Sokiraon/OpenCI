@@ -1,9 +1,9 @@
 import { get, post } from "./index";
 import { Project, Job } from "@openci/core";
-import { ProjectDetail, RepoInfo } from "./type";
+import { ProjectDetail, ProjectList, RepoInfo } from "./type";
 
 export const getProjectList = () => {
-  return get<Project.Record[]>("/projects");
+  return get<{ projects: ProjectList }>("/projects");
 };
 
 export const getProjectDetail = (id: number) => {

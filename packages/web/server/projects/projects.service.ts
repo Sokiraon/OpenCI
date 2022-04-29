@@ -5,7 +5,15 @@ import { getErrorResponse, getOkResponse } from "../utils.js";
 @Injectable()
 export class ProjectsService {
   getAll() {
-    return getOkResponse(Project.getAll());
+    const res: Array<{ info: Project.Record; jobs: Job.Record[] }> = [];
+    const projects = Project.getAll();
+    projects.forEach(project => {
+      res.push({
+        info: project,
+        jobs: Job.getProjectJobs(project.id),
+      });
+    });
+    return getOkResponse({ projects: res });
   }
 
   getProjectDetail(id: number) {

@@ -5,7 +5,6 @@ import MessageStream from "./utils/message-stream.js";
 namespace Run {
   export type Options = {
     branch?: string;
-    input?: string;
     stages?: string[];
   };
 

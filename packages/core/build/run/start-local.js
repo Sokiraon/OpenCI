@@ -10,19 +10,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import reporter from "./utils/reporter.js";
 import { join } from "path";
 import { prepareWorkspace } from "./utils/initialization.js";
-import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
 import { exit } from "process";
 import chalk from "chalk";
 import ExpressionRunner from "./utils/expr-runner.js";
+import fs from "fs";
+import lockfile from "proper-lockfile";
 export default function startLocalProject(path, options, messageStream) {
     return __awaiter(this, void 0, void 0, function* () {
         reporter.init(path, messageStream);
+        const cifilePath = join(path, "CIFile");
+        let release;
+        if (!fs.existsSync(cifilePath)) {
+            reporter.error("Error, unable to find CIFile at project root!");
+            exit(1);
+        }
+        else {
+            try {
+                release = lockfile.lockSync(cifilePath);
+            }
+            catch (_a) {
+                reporter.error("Another job is running!");
+                exit(1);
+            }
+        }
         yield prepareWorkspace(path, options === null || options === void 0 ? void 0 : options.branch);
-        const filePath = join(path, (options === null || options === void 0 ? void 0 : options.input) || DEFAULT_CIFILE);
         let parseResult;
         try {
-            parseResult = parseCIFile(filePath);
+            parseResult = parseCIFile(cifilePath);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -59,6 +74,7 @@ export default function startLocalProject(path, options, messageStream) {
             reporter.success(`Finished running stage [${stage.name}]`);
         }
         reporter.success("Finished all the operations!");
+        release();
         exit(0);
     });
 }

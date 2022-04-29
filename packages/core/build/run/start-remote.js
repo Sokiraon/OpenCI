@@ -7,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
 import Project from "../project/index.js";
 import { prepareWorkspace } from "./utils/initialization.js";
@@ -29,7 +28,7 @@ export default function startRemoteProject(projectId, options, messageStream) {
         yield prepareWorkspace(project, options === null || options === void 0 ? void 0 : options.branch);
         let parseResult;
         try {
-            parseResult = parseCIFile((options === null || options === void 0 ? void 0 : options.input) || DEFAULT_CIFILE);
+            parseResult = parseCIFile("CIFile");
         }
         catch (error) {
             if (error instanceof Error) {

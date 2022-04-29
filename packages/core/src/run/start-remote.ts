@@ -1,5 +1,4 @@
 import Run from ".";
-import { DEFAULT_CIFILE } from "../constants.js";
 import parseCIFile from "../parser/index.js";
 import { VisitCommonStageResult, VisitStagesResult } from "../parser/visitor.js";
 import Project from "../project/index.js";
@@ -27,7 +26,7 @@ export default async function startRemoteProject(
   await prepareWorkspace(project, options?.branch);
   let parseResult: VisitStagesResult;
   try {
-    parseResult = parseCIFile(options?.input || DEFAULT_CIFILE);
+    parseResult = parseCIFile("CIFile");
   } catch (error) {
     if (error instanceof Error) {
       reporter.error(error.message);

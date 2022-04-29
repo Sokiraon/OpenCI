@@ -5,6 +5,11 @@ interface RepoInfo {
   tags: string[];
 }
 
+type ProjectList = {
+  info: Project.Record;
+  jobs: Job.Record[];
+}[];
+
 interface ProjectDetail {
   project: Project.Record;
   repoInfo: RepoInfo;

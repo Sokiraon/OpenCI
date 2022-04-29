@@ -1,6 +1,14 @@
 import { ArrowBack, Delete, PlayArrow } from "@mui/icons-material";
-import { Box, IconButton, Tab, Tabs, Tooltip } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import {
+  Box,
+  IconButton,
+  Skeleton,
+  Tab,
+  Tabs,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Link,
   Outlet,
@@ -10,7 +18,6 @@ import {
   useParams,
 } from "react-router-dom";
 import DeleteProjectDialog from "../../components/DeleteProjectDialog";
-import TextSkeleton from "../../components/TextSkeleton";
 import useBarTitle from "../../hooks/useBarTitle";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import useForceUpdate from "../../hooks/useForceUpdate";
@@ -19,6 +26,13 @@ import { deleteProject, getProjectDetail } from "../../requests/project";
 import StartJobDialog from "./StartJobDialog";
 import { SecondaryBar } from "../Dashboard";
 import { ProjectDetail } from "../../requests/type";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSun } from "@fortawesome/free-solid-svg-icons/faSun";
+import { faCloudSun } from "@fortawesome/free-solid-svg-icons";
+import { faCloud } from "@fortawesome/free-solid-svg-icons";
+import { faCloudRain } from "@fortawesome/free-solid-svg-icons";
+import { faCloudBolt } from "@fortawesome/free-solid-svg-icons/faCloudBolt";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 interface UrlParams extends Record<string, any> {
   id: number;
@@ -47,6 +61,25 @@ export default function ProjectDetailPage() {
   }, [pathname]);
 
   const [projectDetail, setProjectDetail] = useState<ProjectDetail>();
+  const healthInfo = useMemo<[IconDefinition, string] | undefined>(() => {
+    if (projectDetail) {
+      const finishedJobs = projectDetail.jobs.filter(job => job.status !== 0).length;
+      const successJobs = projectDetail.jobs.filter(job => job.status === 2).length;
+      const successRate = successJobs / finishedJobs;
+      if (successRate <= 0.2) {
+        return [faCloudBolt, "Less than 20% jobs successful"];
+      } else if (successRate <= 0.4) {
+        return [faCloudRain, "Less than 40% jobs successful"];
+      } else if (successRate <= 0.6) {
+        return [faCloud, "Less than 60% jobs successful"];
+      } else if (successRate <= 0.8) {
+        return [faCloudSun, "Less than 80% jobs successful"];
+      } else {
+        return [faSun, "More than 80% jobs successful"];
+      }
+    }
+    return undefined;
+  }, [projectDetail]);
 
   const forceUpdate = useForceUpdate(() => {
     if (id) {
@@ -79,11 +112,24 @@ export default function ProjectDetailPage() {
         >
           <ArrowBack />
         </IconButton>
-        <TextSkeleton
-          variant="h6"
-          sx={{ minWidth: "144px", ml: 2 }}
-          content={projectDetail?.project.name}
-        />
+        <Typography variant="h6" sx={{ minWidth: "128px", ml: 2 }}>
+          {projectDetail && healthInfo ? (
+            <>
+              <Tooltip title={healthInfo[1]}>
+                <Box>
+                  {projectDetail.project.name}
+                  <FontAwesomeIcon
+                    fontSize={18}
+                    icon={healthInfo[0]}
+                    style={{ marginLeft: "16px" }}
+                  />
+                </Box>
+              </Tooltip>
+            </>
+          ) : (
+            <Skeleton height={40} />
+          )}
+        </Typography>
         <Tabs
           textColor="inherit"
           value={tabValue}
